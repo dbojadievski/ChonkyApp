@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:chonkyBehaviors="clr-namespace:ChonkyApp.Behaviors"
+             x:Class="ChonkyApp.App">
+    <!--
+        Define global resources and styles here, that apply to all pages in your app.
+    -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#000</Color>
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="VerticalTextAlignment" Value="Center" />
+            </Style>
+            <Style TargetType="Page">
+                <Setter Property="BackgroundColor" Value="Black" />
+            </Style>
+            <Style TargetType="StackLayout">
+                <Setter Property="BackgroundColor" Value="Black" />
+            </Style>
+            <Style TargetType="ContentPage">
+                <Setter Property="Background" Value="{StaticResource Key=Primary}" />
+            </Style>
+            <Style TargetType="Entry" x:Key="DataFieldEntryStyle">
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="VerticalTextAlignment" Value="Center" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="MinimumWidthRequest" Value="150" />
+            </Style>
+            <Style TargetType="Entry" x:Key="NumericEntry" BasedOn="{StaticResource DataFieldEntryStyle}" />
+            <Style TargetType="Button" x:Key="BaseButtonStyle">
+                <Setter Property="BackgroundColor" Value="Purple" />
+            </Style>
+            <Style TargetType="Button" x:Key="TextButtonStyle" BasedOn="{StaticResource BaseButtonStyle}">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="BorderColor" Value="Transparent" />
+                <Setter Property="BorderWidth" Value="0" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="WidthRequest" Value="50" />
+                <Setter Property="HeightRequest" Value="50" />
+            </Style>
+            <Style TargetType="Button" x:Key="CircularButton" BasedOn="{StaticResource BaseButtonStyle}">
+                <Setter Property="ContentLayout">
+                    <Grid WidthRequest="100" HeightRequest="100" Margin="5">
+                        <Ellipse Fill="Purple" />
+                    </Grid>   
+                </Setter>
+            </Style>
+            <Style TargetType="DatePicker" x:Key="BaseDatePickerStyle">
+                <Setter Property="BackgroundColor" Value="Black" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="MinimumDate" Value="01/01/1900" />
+                <Setter Property="Visual" Value="Material" />
+            </Style>
+            <Image Source="profile.png" x:Key="ProfilePicture" />
+        </ResourceDictionary>        
+    </Application.Resources>
+</Application>

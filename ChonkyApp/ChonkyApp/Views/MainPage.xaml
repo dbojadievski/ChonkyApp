@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:chonkyCommands="clr-namespace:ChonkyApp.Commands"
+             xmlns:chonkyBehaviors="clr-namespace:ChonkyApp.Behaviors"
+             xmlns:charts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
+             mc:Ignorable="d"
+             x:Class="ChonkyApp.Views.LoginPage"
+             Shell.NavBarIsVisible="True">
+    <ContentPage.Content>
+        <StackLayout VerticalOptions="FillAndExpand" Orientation="Vertical">
+            <Label Text="{Binding Title}" />
+            <Button 
+                Text="P" 
+                Style="{StaticResource TextButtonStyle}" 
+                HorizontalOptions="End" 
+                Clicked="Button_Clicked" />
+           
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Imperial units" />
+                <Switch 
+                    x:Name="switchUnit" 
+                    Toggled="switchUnit_Toggled" 
+                    IsToggled="{Binding IsImperial}" 
+                    />
+            </StackLayout>
+           
+            <StackLayout Orientation="Horizontal" BindingContext="{Binding Path=BodyWeight}">
+                <Label Text="Weight"/>
+                <Entry 
+                    x:Name="edtWeight" 
+                    Text="{Binding Value}"
+                    Style="{StaticResource NumericEntry}">
+                    <Entry.Behaviors>
+                        <chonkyBehaviors:PositiveNumericValidationBehavior />
+                    </Entry.Behaviors>
+                </Entry>
+                    
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" BindingContext="{Binding Path=BodyFat}">
+                <Label Text="Body Fat" />
+                <Entry 
+                    x:Name="edtFat" 
+                    Text="{Binding Value}" 
+                    Style="{StaticResource NumericEntry}">
+                    <Entry.Behaviors>
+                        <chonkyBehaviors:PositiveNumericValidationBehavior />
+                    </Entry.Behaviors>
+                </Entry>
+            </StackLayout>
+            
+            <Label Text="Body Weight" />
+            <charts:ChartView 
+                x:Name="weightChart" 
+                Chart="{Binding Path=BodyWeightChart}" 
+                BackgroundColor="Black" 
+            />
+
+            <Label Text="Body Fat %" />
+            <charts:ChartView 
+                x:Name="fatChart" 
+                Chart="{Binding Path=BodyFatChart}" 
+                BackgroundColor="Black" 
+            />
+            
+            <Button 
+                Text="Save Data Point" 
+                VerticalOptions="Center" 
+                Margin="0,10,0,0"
+                Style="{StaticResource BaseButtonStyle}"
+                Command="{Binding SaveDataPointCommand}"
+                />
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
