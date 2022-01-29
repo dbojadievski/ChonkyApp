@@ -31,6 +31,7 @@ namespace ChonkyApp.Models
         private DateTime birthDate;
 
         private UserGoal goal;
+        private bool isImperial;
 
         public string FirstName
         {
@@ -77,6 +78,12 @@ namespace ChonkyApp.Models
         {
             get => goal;
             set { SetProperty(ref goal, value); }
+        }
+
+        public Boolean IsImperial
+        {
+            get => isImperial;
+            set { SetProperty(ref isImperial, value); }
         }
     }
 }

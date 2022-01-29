@@ -54,7 +54,37 @@
                 <Setter Property="MinimumDate" Value="01/01/1900" />
                 <Setter Property="Visual" Value="Material" />
             </Style>
+
+            <Style TargetType="ImageButton" x:Key="SpaceGoalButtonStyle">
+                <Setter Property="BorderColor" Value="Purple" />
+                <Setter Property="BackgroundColor" Value="Purple" />
+                <Setter Property="WidthRequest" Value="50" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="CornerRadius" Value="50" />
+            </Style>
+            <Style TargetType="ImageButton" x:Key="SpaceGoalButtonUncheckedStyle" BasedOn="{StaticResource SpaceGoalButtonStyle}">
+                <Setter Property="BackgroundColor" Value="DimGray" />
+            </Style>
             <Image Source="profile.png" x:Key="ProfilePicture" />
+            <Style TargetType="Line" x:Key="DefaultLineStyle">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="Background" Value="White" />
+            </Style>
+            <x:String x:Key="SodiumGoalReachedMessage">
+                "Staying salty keeps your sodium up and your muscles pumped."
+            </x:String>
+            <x:String x:Key="PotassiumGoalReachedMessage">
+                "Po-ta-toes! Boil 'em, mash 'em, stick em in a high-potassium stew."
+            </x:String>
+            <x:String x:Key="VitaminAGoalReachedMessage">
+                "I see you eating that carrot! All that vitamin A will help you see, too."
+            </x:String>
+            <x:String x:Key="VitaminCGoalReachedMessage">
+                "Vitamin C keeps life spicy."
+            </x:String>
+            <x:String x:Key="VitaminEGoalReachedMessage">
+                "You've reached levels of Vitamin E-xcellence that shouldn't be possible!"
+            </x:String>
         </ResourceDictionary>        
     </Application.Resources>
 </Application>

@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:chonkyConverters="clr-namespace:ChonkyApp.Converter"
-              xmlns:converters="clr-namespace:ATXF.Converters;assembly=ATXF" 
              x:Class="ChonkyApp.Views.ProfilePage">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -14,6 +13,14 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <StackLayout Orientation="Vertical" IsEnabled="{Binding IsEnabled}">
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Metric" />
+                <Switch 
+                    x:Name="switchUnit" 
+                    IsToggled="{Binding IsImperial}"
+                 />
+                <Label Text="Imperial" />
+            </StackLayout>
             <StackLayout Orientation="Horizontal">
                 <Label Text="Name:" />
                 <Entry Text="{Binding CurrentProfile.FirstName}" HorizontalOptions="Center"/>

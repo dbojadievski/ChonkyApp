@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ChonkyApp": {
+      "commandName": "Project",
+      "commandLineArgs": "--delete-daily-goals"
+    }
+  }
+}

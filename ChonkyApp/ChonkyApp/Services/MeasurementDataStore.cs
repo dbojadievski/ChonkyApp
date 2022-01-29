@@ -5,19 +5,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Text;
 
 namespace ChonkyApp.Services
 {
-    public class MeasurementDataStore : IDataStore<Measurement>
+    public class MeasurementDataStore
     {
         private static bool CreateTableUnit()
         {
-            var wasCreated = SQLiteProvider.Database.CreateTable<UnitEntry>();
-            if (wasCreated == SQLite.CreateTableResult.Created)
+            var wasCreated = SQLiteProvider.Database.CreateTable<UnitEntry>() == SQLite.CreateTableResult.Created;
+            if (wasCreated)
+            {
+                InsertUnitData();
+            }
+
+            return wasCreated;
+
+            void InsertUnitData()
             {
                 foreach (var x in Enum.GetValues(typeof(Unit)))
                 {
-                    Unit asUnit = (Unit) x;
+                    Unit asUnit = (Unit)x;
                     var entry = new UnitEntry
                     {
                         Unit = asUnit,
@@ -27,7 +35,6 @@ namespace ChonkyApp.Services
                     SQLiteProvider.Database.Insert(entry);
                 }
             }
-            return false;
         }
 
         private static bool CreateTableMeasurement()
@@ -80,41 +87,55 @@ namespace ChonkyApp.Services
             return await Task.FromResult(item);
         }
 
-        public async Task<IEnumerable<Measurement>> GetItemsAsync(bool forceRefresh = false)
+        /// <summary>
+        /// Gets all measurements for the specified period.
+        /// </summary>
+        /// <param name="numDaysInPast">The number of days for which to search, or 0 for all.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Measurement>> GetItemsAsync(uint numDaysInPast = 0)
         {
+            IEnumerable<Measurement> items = null;
 
-            var items = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement");
+            DateTime maxDateInPast = DateTime.Now.AddDays(-numDaysInPast);
+            items = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement WHERE CreatedAt >= ?", maxDateInPast);
+
             return await Task.FromResult(items);
         }
 
-        public async Task<IEnumerable<Measurement>> GetWeightMeasurements(bool forceRefresh = false)
+        public async Task<IEnumerable<Measurement>> GetWeightMeasurementsBetweenDates(DateTime startDate, DateTime endDate)
         {
             IEnumerable<Measurement> weightDataPoints = null;
-            try
-            {
-                weightDataPoints = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement m JOIN UnitEntry u ON m.Unit = u.Unit WHERE u.UnitType=? ORDER BY m.CreatedAt", new object[] { UnitType.Weight });
 
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+            Debug.Assert(startDate >= endDate);
+            if (startDate <= endDate)
+                weightDataPoints = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement m JOIN UnitEntry u ON m.Unit = u.Unit WHERE u.UnitType = ? AND m.CreatedAt >= ? AND m.CreatedAt <= ? ORDER BY m.CreatedAt", new object[] { UnitType.Weight, startDate, endDate });
+
+            return weightDataPoints;
+        }
+
+        public async Task<IEnumerable<Measurement>> GetWeightMeasurements(uint numDaysInPast = 0)
+        {
+            IEnumerable<Measurement> weightDataPoints = null;
+
+            DateTime maxDateInPast = DateTime.Now.AddDays(-numDaysInPast);
+            weightDataPoints = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement m JOIN UnitEntry u ON m.Unit = u.Unit WHERE u.UnitType = ? AND m.CreatedAt >= ? ORDER BY m.CreatedAt", new object[] { UnitType.Weight, maxDateInPast });
+
 
             return await Task.FromResult(weightDataPoints);
         }
 
-        public async Task<IEnumerable<Measurement>> GetBodyFatMeasurements(bool forceRefresh = false)
+        public async Task<IEnumerable<Measurement>> GetBodyFatMeasurements(uint numDaysInPast = 0)
         {
             IEnumerable<Measurement> fatDataPoints = null;
-            try
-            {
-                fatDataPoints = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement m JOIN UnitEntry u ON m.Unit = u.Unit WHERE u.UnitType=? ORDER BY m.CreatedAt", new object[] { UnitType.Relative });
-
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+            DateTime maxDateInPast = DateTime.Now.AddDays(-numDaysInPast);
+            
+            fatDataPoints = SQLiteProvider.Database.Query<Measurement>(
+                "SELECT * FROM Measurement m JOIN UnitEntry u ON m.Unit = u.Unit WHERE u.UnitType= ? AND m.CreatedAt >= ? ORDER BY m.CreatedAt", 
+                new object[] 
+                { 
+                    UnitType.Relative, 
+                    maxDateInPast 
+                });
 
             return await Task.FromResult(fatDataPoints);
         }

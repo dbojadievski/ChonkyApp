@@ -20,7 +20,8 @@ namespace ChonkyApp.Models
         Kilogram    = 2,
         Pound       = 3,
         Second      = 4,
-        Percent     = 5
+        Percent     = 5,
+        Millimeter  = 6
     }
 
     public enum UnitType
@@ -29,6 +30,16 @@ namespace ChonkyApp.Models
         Weight      = 1,
         Time        = 2,
         Relative    = 3
+    }
+
+    public enum BodyFatRange
+    {
+        Unknown = 0,
+        CrititcallyLow,
+        Low,
+        Normal,
+        High,
+        CriticallyHigh
     }
 
     public class UnitEntry: BaseModel
@@ -50,12 +61,31 @@ namespace ChonkyApp.Models
         }
     }
 
+    public class MeasurementKindEntry : BaseModel
+    {
+        private UnitEntry unit;
+        private String name;
+
+        public UnitEntry Unit
+        {
+            get => Unit;
+            set => SetProperty(ref unit, value);
+        }
+
+        public String Name
+        {
+            get => name;
+            set => SetProperty(ref name, value);
+        }
+    }
+
     static class UnitHelper
     {
         public static UnitType GetUnitType(this Unit input)
         {
             switch (input)
             {
+                case Unit.Millimeter:
                 case Unit.Centimeter:
                 case Unit.Inch:
                     return UnitType.Length;
@@ -86,6 +116,7 @@ namespace ChonkyApp.Models
     {
         private double value;
         private Unit unit;
+        private String name;
 
         [SQLite.Column("Value")]
         public Double Value
@@ -106,17 +137,25 @@ namespace ChonkyApp.Models
         {
             get => unit.GetUnitType();
         }
+
+        [SQLite.Column("Name")]
+        public String Name
+        {
+            get => name;
+            set => SetProperty(ref this.name, value);
+        }
         
 
         public Measurement()
         {
         }
 
-        public Measurement(DateTime recordedAt, Double value = 0, Unit unit = Unit.Centimeter)
+        public Measurement(DateTime recordedAt, Double value = 0, Unit unit = Unit.Centimeter, String name = "")
         {
             CreatedAt   = recordedAt;
             Unit        = unit;
             Value       = value;
+            Name        = name;
         }
 
         public override string ToString()
@@ -129,12 +168,12 @@ namespace ChonkyApp.Models
     {
         private static Double KilogramToPound(in Double kilograms)
         {
-            return (kilograms * 2.2d);
+            return Math.Round((kilograms * 2.2d), 2);
         }
 
         private static Double PoundToKilogram(in Double pounds)
         {
-            return (pounds * 0.45359237);
+            return Math.Round((pounds * 0.45359237d), 2);
         }
 
         private static Double CentimeterToInch(in Double centimetres)
@@ -156,6 +195,21 @@ namespace ChonkyApp.Models
                 result = new Measurement(from.CreatedAt, CentimeterToInch(from.Value), Unit.Inch);
             else if (from.Unit == Unit.Inch && to == Unit.Centimeter)
                 result = new Measurement(from.CreatedAt, InchToCentimeter(from.Value), Unit.Centimeter);
+            else
+                throw new Exception(String.Format("Measurement conversion between {0} and {1} not implemented", from.Unit, to));
+
+            return result;
+        }
+
+        private static Measurement ConvertWeight(in Measurement from, in Unit to)
+        {
+            Measurement result = null;
+            if (from.Unit == to)
+                result = from;
+            else if (from.Unit == Unit.Kilogram && to == Unit.Pound)
+                result = new Measurement(from.CreatedAt, KilogramToPound(from.Value), Unit.Pound);
+            else if (from.Unit == Unit.Pound && to == Unit.Kilogram)
+                result = new Measurement(from.CreatedAt, PoundToKilogram(from.Value), Unit.Kilogram);
 
             return result;
         }
@@ -172,11 +226,12 @@ namespace ChonkyApp.Models
                         output = ConvertLength(input, type);
                         break;
                     case UnitType.Weight:
+                        output = ConvertWeight(input, type);
+                        break;
                     case UnitType.Time:
                     default:
                         throw new NotImplementedException();
                 }
-                output = new Measurement(input.CreatedAt, input.Value, input.Unit);
             }
             else
                 output = null;

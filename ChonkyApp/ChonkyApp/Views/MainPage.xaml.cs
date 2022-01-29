@@ -27,17 +27,18 @@ namespace ChonkyApp.Views
 
         }
 
-        private void switchUnit_Toggled(object sender, ToggledEventArgs e)
-        {
-            if (sender == switchUnit)
-            {
-                viewModel.IsImperial = switchUnit.IsToggled;
-            }
-        }
+        //private void switchUnit_Toggled(object sender, ToggledEventArgs e)
+        //{
+        //}
 
         private void Button_Clicked(object sender, EventArgs e)
         {
             Navigation.PushAsync(new ProfilePage());
+        }
+
+        private void ButtonAddCustomMeasurements_Clicked(object sender, EventArgs e)
+        {
+            Navigation.PushAsync(new AddCustomMeasurementPage());
         }
     }
 }
