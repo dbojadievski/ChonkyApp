@@ -2,6 +2,7 @@
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:chonkyBehaviors="clr-namespace:ChonkyApp.Behaviors"
+             xmlns:charts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
              x:Class="ChonkyApp.App">
     <!--
         Define global resources and styles here, that apply to all pages in your app.
@@ -9,30 +10,61 @@
     <Application.Resources>
         <ResourceDictionary>
             <Color x:Key="Primary">#000</Color>
+            <Color x:Key="PrimaryTextColor">White</Color>
+            <Color x:Key="PrimaryAccentColor">Purple</Color>
+            <Color x:Key="PrimaryHighlightColor">LightGreen</Color>
+
+            <Style TargetType="Grid">
+                <Setter Property="BackgroundColor" Value="{Binding Primary}" />
+            </Style>
+
+            <Style TargetType="ImageButton">
+                <Setter Property="WidthRequest" Value="64" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+            </Style>
+
+            <!--<Style TargetType="BoxView" x:Name="BaseSeparatorStyle">
+                <Setter Property="Color" Value="{StaticResource PrimaryTextColor}" />
+                <Setter Property="HeightRequest" Value="1" />
+            </Style>-->
+
+            <Style TargetType="Frame" x:Name="BaseFrameStyle">
+                <Setter Property="Background" Value="{StaticResource Primary}" />
+                <Setter Property="BorderColor" Value="Gray" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Margin" Value="10" />
+            </Style>
+
             <Style TargetType="Label">
-                <Setter Property="TextColor" Value="White" />
+                <Setter Property="TextColor" Value="{StaticResource PrimaryTextColor}" />
                 <Setter Property="HorizontalTextAlignment" Value="Center" />
                 <Setter Property="VerticalTextAlignment" Value="Center" />
             </Style>
+            
             <Style TargetType="Page">
-                <Setter Property="BackgroundColor" Value="Black" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
             </Style>
+            
             <Style TargetType="StackLayout">
-                <Setter Property="BackgroundColor" Value="Black" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
             </Style>
+            
             <Style TargetType="ContentPage">
                 <Setter Property="Background" Value="{StaticResource Key=Primary}" />
             </Style>
+            
             <Style TargetType="Entry" x:Key="DataFieldEntryStyle">
                 <Setter Property="HorizontalTextAlignment" Value="Center" />
                 <Setter Property="VerticalTextAlignment" Value="Center" />
                 <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="MinimumWidthRequest" Value="150" />
+                <Setter Property="MinimumWidthRequest" Value="200" />
             </Style>
             <Style TargetType="Entry" x:Key="NumericEntry" BasedOn="{StaticResource DataFieldEntryStyle}" />
             <Style TargetType="Button" x:Key="BaseButtonStyle">
-                <Setter Property="BackgroundColor" Value="Purple" />
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccentColor}" />
+                <Setter Property="Margin" Value="10" />
             </Style>
+            
             <Style TargetType="Button" x:Key="TextButtonStyle" BasedOn="{StaticResource BaseButtonStyle}">
                 <Setter Property="BackgroundColor" Value="Transparent" />
                 <Setter Property="BorderColor" Value="Transparent" />
@@ -41,23 +73,9 @@
                 <Setter Property="WidthRequest" Value="50" />
                 <Setter Property="HeightRequest" Value="50" />
             </Style>
-            <Style TargetType="Button" x:Key="CircularButton" BasedOn="{StaticResource BaseButtonStyle}">
-                <Setter Property="ContentLayout">
-                    <Grid WidthRequest="100" HeightRequest="100" Margin="5">
-                        <Ellipse Fill="Purple" />
-                    </Grid>   
-                </Setter>
-            </Style>
-            <Style TargetType="DatePicker" x:Key="BaseDatePickerStyle">
-                <Setter Property="BackgroundColor" Value="Black" />
-                <Setter Property="TextColor" Value="White" />
-                <Setter Property="MinimumDate" Value="01/01/1900" />
-                <Setter Property="Visual" Value="Material" />
-            </Style>
-
             <Style TargetType="ImageButton" x:Key="SpaceGoalButtonStyle">
-                <Setter Property="BorderColor" Value="Purple" />
-                <Setter Property="BackgroundColor" Value="Purple" />
+                <Setter Property="BorderColor" Value="{StaticResource PrimaryAccentColor}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
                 <Setter Property="WidthRequest" Value="50" />
                 <Setter Property="HeightRequest" Value="50" />
                 <Setter Property="CornerRadius" Value="50" />
@@ -65,11 +83,24 @@
             <Style TargetType="ImageButton" x:Key="SpaceGoalButtonUncheckedStyle" BasedOn="{StaticResource SpaceGoalButtonStyle}">
                 <Setter Property="BackgroundColor" Value="DimGray" />
             </Style>
-            <Image Source="profile.png" x:Key="ProfilePicture" />
-            <Style TargetType="Line" x:Key="DefaultLineStyle">
-                <Setter Property="BackgroundColor" Value="White" />
-                <Setter Property="Background" Value="White" />
+            
+            <Style TargetType="DatePicker" x:Key="BaseDatePickerStyle">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="{StaticResource PrimaryTextColor}" />
+                <Setter Property="MinimumDate" Value="01/01/1900" />
+                <Setter Property="Visual" Value="Material" />
             </Style>
+            
+
+            <Image Source="profile.png" x:Key="ProfilePicture" />
+            <Style TargetType="charts:ChartView">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="MinimumHeightRequest" Value="100" />
+                <Setter Property="MinimumWidthRequest" Value="100" />
+            </Style>
+           
+            
+            <!-- Strings. -->
             <x:String x:Key="SodiumGoalReachedMessage">
                 "Staying salty keeps your sodium up and your muscles pumped."
             </x:String>

@@ -1,6 +1,9 @@
-﻿using System;
+﻿using SQLiteNetExtensions.Attributes;
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace ChonkyApp.Models
@@ -63,12 +66,16 @@ namespace ChonkyApp.Models
 
     public class MeasurementKindEntry : BaseModel
     {
-        private UnitEntry unit;
+        private Guid unit;
         private String name;
 
-        public UnitEntry Unit
+        private Double minValue;
+        private Double maxValue;
+
+        [ForeignKey(typeof(UnitEntry))]
+        public Guid UnitID
         {
-            get => Unit;
+            get => unit;
             set => SetProperty(ref unit, value);
         }
 
@@ -76,6 +83,36 @@ namespace ChonkyApp.Models
         {
             get => name;
             set => SetProperty(ref name, value);
+        }
+
+        public Double MinValue
+        {
+            get => minValue;
+            set => SetProperty(ref minValue, value);
+        }
+
+        public Double MaxValue
+        {
+            get => maxValue;
+            set => SetProperty(ref maxValue, value);
+        }
+
+        public MeasurementKindEntry( String name, UnitEntry unit, Double minValue = 0, Double maxValue = 0)
+        {
+            Name = name;
+            UnitID = unit.ID;
+            MinValue = minValue;
+            MaxValue = maxValue;
+
+            Debug.Assert(minValue >= maxValue);
+        }
+
+        public MeasurementKindEntry()
+        {
+            this.UnitID = Guid.Empty;
+            this.Name = "";
+            this.MinValue = 0;
+            this.MaxValue = 0;
         }
     }
 
@@ -161,6 +198,35 @@ namespace ChonkyApp.Models
         public override string ToString()
         {
             return String.Format("{0:F1}", Value);
+        }
+    }
+
+    public class CustomMeasurement: BaseModel
+    {
+        private Guid measurementKindID;
+        private Double value;
+
+        public Guid MeasurementKindID
+        {
+            get => measurementKindID;
+            set => SetProperty(ref measurementKindID, value);
+        }
+
+        public Double Value
+        {
+            get => value;
+            set => SetProperty(ref value, value);
+        }
+
+        public CustomMeasurement(DateTime recordedAt, Double value, Guid measurementKindID)
+        {
+            CreatedAt = recordedAt;
+            MeasurementKindID = measurementKindID;
+            Value = value;
+        }
+
+        public CustomMeasurement(): base()
+        {
         }
     }
 

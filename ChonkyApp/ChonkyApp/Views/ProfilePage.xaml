@@ -17,7 +17,7 @@
                 <Label Text="Metric" />
                 <Switch 
                     x:Name="switchUnit" 
-                    IsToggled="{Binding IsImperial}"
+                    IsToggled="{Binding CurrentProfile.IsImperial}"
                  />
                 <Label Text="Imperial" />
             </StackLayout>
@@ -40,8 +40,8 @@
             </StackLayout>
             <StackLayout Orientation="Horizontal" RadioButtonGroup.GroupName="Sex">
                 <Label Text="Sex" />
-                <RadioButton x:Name="rbMale" GroupName="Sex" Content="Male" IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToBoolConverter}}" />
-                <RadioButton x:Name="rbFemale" GroupName="Sex" Content="Female"  IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToInvertedBoolConverter}}"/>
+                <RadioButton x:Name="rbMale" GroupName="Sex" Content="Male" IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToInvertedBoolConverter}}" />
+                <RadioButton x:Name="rbFemale" GroupName="Sex" Content="Female"  IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToBoolConverter}}"/>
             </StackLayout>
             <StackLayout Orientation="Horizontal">
                 <Label Text="Goal" />

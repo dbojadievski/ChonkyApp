@@ -71,13 +71,29 @@ namespace ChonkyApp.ViewModels
             get => $"{CurrentProfile.FirstName} {CurrentProfile.LastName}";
         }
 
+
         public UserProfileViewModel()
         {
             SaveProfileCommand = new SaveProfileCommand(this);
             IsEnabled = true;
-            currentProfile = DataStore.GetCurrentProfile().Result;
-
+            CurrentProfile = DataStore.GetCurrentProfile().Result;
         }
+
+        public void ReloadUser()
+        {
+            var user = DataStore.GetCurrentProfile().Result;
+            CurrentProfile.EmailAddress = user.EmailAddress;
+            CurrentProfile.BirthDate = user.BirthDate;
+            CurrentProfile.CreatedAt =  user.CreatedAt;
+            CurrentProfile.FirstName = user.FirstName;
+            CurrentProfile.LastName = user.LastName;
+            CurrentProfile.Goal = user.Goal;
+            CurrentProfile.Height = user.Height;
+            CurrentProfile.IsImperial = user.IsImperial;
+            CurrentProfile.Sex = user.Sex;
+        }
+
+
 
         protected bool SetProperty<T>(ref T backingStore, T value,
         [CallerMemberName] string propertyName = "",
@@ -94,7 +110,8 @@ namespace ChonkyApp.ViewModels
 
         public void SaveCurrentProfile()
         {
-            _ = DataStore.UpdateItemAsync(CurrentProfile);
+            DataStore.UpdateItemAsync(CurrentProfile).Wait();
+            ReloadUser();
         }
 
         #region INotifyPropertyChanged

@@ -14,11 +14,11 @@ using Xamarin.Forms.Xaml;
 namespace ChonkyApp.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class LoginPage : ContentPage
+    public partial class MainPage : ContentPage
     {
      
         private DataPointViewModel viewModel;
-        public LoginPage()
+        public MainPage()
         {
             InitializeComponent();
             
@@ -27,11 +27,8 @@ namespace ChonkyApp.Views
 
         }
 
-        //private void switchUnit_Toggled(object sender, ToggledEventArgs e)
-        //{
-        //}
 
-        private void Button_Clicked(object sender, EventArgs e)
+        private void ProfilePageButton_Clicked(object sender, EventArgs e)
         {
             Navigation.PushAsync(new ProfilePage());
         }
@@ -39,6 +36,11 @@ namespace ChonkyApp.Views
         private void ButtonAddCustomMeasurements_Clicked(object sender, EventArgs e)
         {
             Navigation.PushAsync(new AddCustomMeasurementPage());
+        }
+
+        private void HeartbeatButton_Clicked(object sender, EventArgs e)
+        {
+            Navigation.PushAsync(new HeartbeatView());
         }
     }
 }

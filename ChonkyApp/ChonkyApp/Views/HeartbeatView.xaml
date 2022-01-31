@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChonkyApp.Views.HeartbeatView" BackgroundColor="{StaticResource Primary}">
+    <ContentPage.Resources BackgroundColor="{StaticResource Primary}">
+        <ControlTemplate x:Key="FrameRadioTemplate">
+                <Frame Padding="0" Margin="0" CornerRadius="20" VerticalOptions="Start"
+               HeightRequest="100" HorizontalOptions="Start">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CheckedStates">
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="BorderColor" Value="{StaticResource PrimaryHighlightColor}"/>
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                            </VisualState.Setters>
+                            </VisualState>
+
+                            <VisualState x:Name="Unchecked">
+                                <VisualState.Setters>
+                                    <Setter Property="BorderColor" Value="Transparent"/>
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                            </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+
+                    <Grid Margin="4" WidthRequest="100">
+                        <ContentPresenter/>
+                    </Grid>
+                </Frame>
+            </ControlTemplate>
+
+        <Style TargetType="Frame" x:Key="BaseImageRadioFrame">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="WidthRequest" Value="1" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style TargetType="Frame" x:Key="SelectedImageRadioFrameStyle" BasedOn="{StaticResource Key=BaseImageRadioFrame}">
+        </Style>
+
+        <x:String x:Key="SleepQuestionString">
+            Last night, I slept...
+        </x:String>
+        <x:String x:Key="SleepLowString">
+            Poor
+        </x:String>
+        <x:String x:Key="SleepNormalString">
+            Fair
+        </x:String>
+        <x:String x:Key="SleepHighString">
+            Well
+        </x:String>
+
+        <x:String x:Key="SorenessQuestionString">
+            My body feels...
+        </x:String>
+        <x:String x:Key="SorenessLowString">
+            Hurt
+        </x:String>
+        <x:String x:Key="SorenessNormalString">
+            Sore
+        </x:String>
+        <x:String x:Key="SorenessHighString">
+            Strong
+        </x:String>
+
+        <x:String x:Key="MoodQuestionString">
+            My attidude is...
+        </x:String>
+        <x:String x:Key="MoodLowString">
+            Bad
+        </x:String>
+        <x:String x:Key="MoodNormalString">
+            Normal
+        </x:String>
+        <x:String x:Key="MoodHighString">
+            Good
+        </x:String>
+
+        <x:String x:Key="StressQuestionString">
+            Life just seems...
+        </x:String>
+        <x:String x:Key="StressLowString">
+            Tough
+        </x:String>
+        <x:String x:Key="StressNormalString">
+            OK
+        </x:String>
+        <x:String x:Key="StressHighString">
+            Great
+        </x:String>
+
+        <x:String x:Key="NutritionQuestionString">
+            Today I ate...
+        </x:String>
+        <x:String x:Key="NutritionLowString">
+            Little
+        </x:String>
+        <x:String x:Key="NutritionNormalString">
+            Enough
+        </x:String>
+        <x:String x:Key="NutritionHighString">
+            Plenty
+        </x:String>
+
+        <x:String x:Key="ImagePathLow">
+            smiley_upset_orange.png
+        </x:String>
+        <x:String x:Key="ImagePathNormal">
+            smiley_neutral_yellow.png
+        </x:String>
+        <x:String x:Key="ImagePathHigh">
+            smiley_positive_lime.png
+        </x:String>
+
+        <x:Double x:Key="RatingLow"> -1 </x:Double>
+        <x:Double x:Key="RatingNormal"> 0 </x:Double>
+        <x:Double x:Key="RatingHigh"> 1 </x:Double>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition/>
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <StackLayout Orientation="Vertical" Grid.Row="0" Margin="20,10" >
+                <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
+                <Label Text="How do you feel today? "/>
+                <Label Text="Be honest." />
+                <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
+            </StackLayout>
+            <ScrollView Grid.Row="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <!--Sleep.-->
+                    <StackLayout Grid.Row="0" Orientation="Vertical">
+                        <Label Text="Sleep" FontAttributes="Bold" FontSize="Large" />
+                        <Label Text="{StaticResource SleepQuestionString}" />
+                        <Grid RadioButtonGroup.GroupName="rbgSleep">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Value="{StaticResource RatingLow}" Grid.Column="0" x:Name="rbSleepLow" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathLow}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource SleepLowString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingNormal}" Grid.Column="1"  x:Name="rbSleepNormal" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathNormal}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource SleepNormalString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingHigh}" Grid.Column="2"  x:Name="rbSleepHigh" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathHigh}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource SleepHighString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                        </Grid>
+                    </StackLayout>
+
+                    <!--Mood.-->
+                    <StackLayout Grid.Row="1" Orientation="Vertical">
+                        <Label Text="Mood" FontAttributes="Bold" FontSize="Large" />
+                        <Label Text="{StaticResource MoodQuestionString}" />
+                        <Grid RadioButtonGroup.GroupName="rbgMood">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Value="{StaticResource RatingLow}" Grid.Column="0"  x:Name="rbMoodLow" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathLow}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource MoodLowString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingNormal}" Grid.Column="1"  x:Name="rbMoodNormal" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathNormal}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource MoodNormalString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingHigh}" Grid.Column="2"  x:Name="rbMoodHigh" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathHigh}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource MoodHighString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                        </Grid>
+                    </StackLayout>
+
+                    <!--Soreness.-->
+                    <StackLayout Grid.Row="2" Orientation="Vertical">
+                        <Label Text="Aches" FontAttributes="Bold" FontSize="Large" />
+                        <Label Text="{StaticResource SorenessQuestionString}" />
+                        <Grid RadioButtonGroup.GroupName="rbgSoreness">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Value="{StaticResource RatingLow}" Grid.Column="0"  x:Name="rbSorenessLow" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathLow}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource SorenessLowString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingNormal}" Grid.Column="1"  x:Name="rbSorenessNormal" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathNormal}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource SorenessNormalString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingHigh}" Grid.Column="2"  x:Name="rbSorenessHigh" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathHigh}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource SorenessHighString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                        </Grid>
+                    </StackLayout>
+
+                    <!--Stress.-->
+                    <StackLayout Grid.Row="3" Orientation="Vertical">
+                        <Label Text="Stress" FontAttributes="Bold" FontSize="Large" />
+                        <Label Text="{StaticResource StressQuestionString}" />
+                        <Grid RadioButtonGroup.GroupName="rbgStress">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Value="{StaticResource RatingLow}" Grid.Column="0"  x:Name="rbStressLow" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathLow}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource StressLowString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingNormal}" Grid.Column="1"  x:Name="rbStressNormal" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathNormal}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource StressNormalString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingHigh}" Grid.Column="2"  x:Name="rbStressHigh" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathHigh}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource StressHighString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                        </Grid>
+                    </StackLayout>
+
+                    <!--Nutrition.-->
+                    <StackLayout Grid.Row="4" Orientation="Vertical">
+                        <Label Text="Nutrition" FontAttributes="Bold" FontSize="Large" />
+                        <Label Text="{StaticResource NutritionQuestionString}" />
+                        <Grid RadioButtonGroup.GroupName="rbgNutrition">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Value="{StaticResource RatingLow}" Grid.Column="0"  x:Name="rbNutritionLow" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathLow}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource NutritionLowString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingNormal}" Grid.Column="1"  x:Name="rbNutritionNormal" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathNormal}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource NutritionNormalString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton Value="{StaticResource RatingHigh}" Grid.Column="2"  x:Name="rbNutritionHigh" ControlTemplate="{StaticResource FrameRadioTemplate}">
+                                <RadioButton.Content>
+                                    <StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+                                        <Image Source="{StaticResource ImagePathHigh}" WidthRequest="64" HeightRequest="64" />
+                                        <Label Text="{StaticResource NutritionHighString}" />
+                                    </StackLayout>
+                                </RadioButton.Content>
+                            </RadioButton>
+                        </Grid>
+                    </StackLayout>
+                </Grid>
+            </ScrollView>
+            <Button Grid.Row="2" Text="Save" Style="{StaticResource BaseButtonStyle}" />
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

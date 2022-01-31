@@ -28,7 +28,6 @@ namespace ChonkyApp.ViewModels
         private readonly String VitaminCReachedMessage = (String)Application.Current.Resources["VitaminCGoalReachedMessage"];
         private readonly String VitaminEReachedMessage = (String)Application.Current.Resources["VitaminEGoalReachedMessage"];
 
-        public MeasurementDataStore MeasurementDataStore = new MeasurementDataStore();
         public DailyGoalDataStore DailyGoalDataStore = new DailyGoalDataStore();
         public UserDataStore UserProfileDataStore = new UserDataStore();
 
@@ -59,6 +58,9 @@ namespace ChonkyApp.ViewModels
 
         String goalMessage;
         private UserProfile currentProfile;
+
+        String bodyWeightInput;
+        String bodyFatInput;
 
         public UserProfile CurrentProfile
         {
@@ -336,7 +338,7 @@ namespace ChonkyApp.ViewModels
         {
             var weight = Double.NaN;
 
-            var itemsInWeek = await MeasurementDataStore.GetWeightMeasurements(7);
+            var itemsInWeek = MeasurementDataStore.GetWeightMeasurements(7);
             if (metricize)
                 itemsInWeek = MetricizeEntries(itemsInWeek);
 
@@ -351,7 +353,7 @@ namespace ChonkyApp.ViewModels
         {
             var fat = 0.0d;
 
-            var itemsInWeek = await MeasurementDataStore.GetBodyFatMeasurements(7);
+            var itemsInWeek = MeasurementDataStore.GetBodyFatMeasurements(7);
             if (itemsInWeek.Count() > 0)
                 fat = itemsInWeek.Average(e => e.Value);
 
@@ -371,7 +373,7 @@ namespace ChonkyApp.ViewModels
             var lastWeek = today.AddDays(-7);
             var twoWeeksAgo = today.AddDays(-14);
 
-            var itemsInWeek = await MeasurementDataStore.GetWeightMeasurementsBetweenDates(twoWeeksAgo, lastWeek);
+            var itemsInWeek = MeasurementDataStore.GetWeightMeasurementsBetweenDates(twoWeeksAgo, lastWeek);
             if (itemsInWeek.Count() > 0)
             {
                 itemsInWeek = MetricizeEntries(itemsInWeek);
@@ -448,7 +450,6 @@ namespace ChonkyApp.ViewModels
             }
         }
 
-
         async Task<BodyFatRange> CalcBodyFatRange()
         {
             var lastDay = DateTime.Today.AddDays(-7);
@@ -489,12 +490,24 @@ namespace ChonkyApp.ViewModels
 
         }
 
+        public String BodyWeightInput
+        {
+            get => bodyWeightInput;
+            set => SetProperty(ref bodyWeightInput, value);
+        }
+
+        public String BodyFatInput
+        {
+            get => bodyFatInput;
+            set => SetProperty(ref bodyFatInput, value);
+        }
+
         public DataPointViewModel()
         {
             CurrentProfile = UserProfileDataStore.GetCurrentProfile().Result;
 
-            bodyWeight = new Measurement(DateTime.Now, 0.0, Unit.Kilogram);
-            bodyFat = new Measurement(DateTime.Now, 0.0, Unit.Percent);
+            bodyWeight = new Measurement(DateTime.Now, 70.0, Unit.Kilogram);
+            bodyFat = new Measurement(DateTime.Now, 15.0, Unit.Percent);
 
             saveDataPointCommand = new AddDataPointCommand(this);
             SaveDailyGoalCommand = new SaveDailyGoalCommand(this);
@@ -520,6 +533,50 @@ namespace ChonkyApp.ViewModels
 
         private async Task RefreshData( bool refreshWeight = true, bool refreshFat = true, bool refeshSpaceGoals = true)
         {
+            DateTime lastDayOfLookBackWindow = DateTime.Now.AddDays(-maxDaysInLookBackWindow);
+            if (refreshWeight)
+            {  
+                var weightEntries = MeasurementDataStore.GetWeightMeasurements(maxDaysInChart);
+                if (weightEntries.Count() == 0)
+                    weightEntries.Add(BodyWeight);
+
+                RefreshChart(BodyWeightChart, weightEntries);
+
+                var latestWeightMeasurement = weightEntries.LastOrDefault();
+                BodyWeight.Value = latestWeightMeasurement.Value;
+                prevWeightMeasurement = BodyWeight.Value;
+                BodyWeightInput = BodyWeight.Value.ToString();
+            }
+
+            if (refreshFat)
+            {
+                var fatEntries = MeasurementDataStore.GetBodyFatMeasurements(maxDaysInChart);
+                if (fatEntries.Count() == 0)
+                    fatEntries.Add(BodyFat);
+
+                RefreshChart(BodyFatChart, fatEntries);
+
+                var latestFatMeasurement = fatEntries.LastOrDefault();
+                BodyFat.Value = latestFatMeasurement.Value;
+                prevFatMeasurement = BodyFat.Value;
+                BodyFatInput = BodyFat.Value.ToString();
+                BodyFatRange = await CalcBodyFatRange();
+            }
+
+            if (refeshSpaceGoals)
+            {
+                RefreshSpaceGoals();
+            }
+
+
+            BMI = await CalcBMI();
+            FFMI = await CalcFFMI();
+            BodyFatRange = await CalcBodyFatRange();
+            DeltaWeight = await CalcDeltaWeight();
+
+            OnPropertyChanged();
+            GenerateGoalMessage();
+
             void RefreshChart(LineChart chart, IEnumerable<Measurement> entries)
             {
                 List<Measurement> normalizedEntries = new List<Measurement>(entries.Count());
@@ -535,10 +592,10 @@ namespace ChonkyApp.ViewModels
                             _ = MeasurementConverter.TryConvert(entry, IsImperial ? Unit.Pound : Unit.Kilogram, out normalizedEntry);
                             break;
                         default:
-                        {
-                            normalizedEntry = entry;
-                            break;
-                        }
+                            {
+                                normalizedEntry = entry;
+                                break;
+                            }
                     }
                 }
 
@@ -546,8 +603,8 @@ namespace ChonkyApp.ViewModels
                 var minMeasurement = entries.Min(m => m.Value);
                 var maxMeasurement = entries.Max(m => m.Value);
 
-                chart.MinValue = (float) minMeasurement;
-                chart.MaxValue = (float) maxMeasurement;
+                chart.MinValue = (float)minMeasurement;
+                chart.MaxValue = (float)maxMeasurement;
 
                 foreach (var currEntry in entries)
                 {
@@ -585,43 +642,6 @@ namespace ChonkyApp.ViewModels
 
                 OnPropertyChanged();
             }
-
-            DateTime lastDayOfLookBackWindow = DateTime.Now.AddDays(-maxDaysInLookBackWindow);
-            if (refreshWeight)
-            {  
-                var weightEntries = await MeasurementDataStore.GetWeightMeasurements(maxDaysInChart);
-                RefreshChart(BodyWeightChart, weightEntries);
-
-                var latestWeightMeasurement = weightEntries.LastOrDefault();
-                BodyWeight.Value = latestWeightMeasurement.Value;
-                prevWeightMeasurement = BodyWeight.Value;
-            }
-
-            if (refreshFat)
-            {
-                var fatEntries = await MeasurementDataStore.GetBodyFatMeasurements(maxDaysInChart);
-                RefreshChart(BodyFatChart, fatEntries);
-
-                var latestFatMeasurement = fatEntries.LastOrDefault();
-                BodyFat.Value = latestFatMeasurement.Value;
-                prevFatMeasurement = BodyFat.Value;
-
-                BodyFatRange = await CalcBodyFatRange();
-            }
-
-            if (refeshSpaceGoals)
-            {
-                RefreshSpaceGoals();
-            }
-
-
-            BMI = await CalcBMI();
-            FFMI = await CalcFFMI();
-            BodyFatRange = await CalcBodyFatRange();
-            DeltaWeight = await CalcDeltaWeight();
-
-            OnPropertyChanged();
-            GenerateGoalMessage();
         }
 
         private void GenerateGoalMessage()
@@ -673,19 +693,26 @@ namespace ChonkyApp.ViewModels
 
         public async Task SaveDataPoint()
         {
-            BodyWeight.CreatedAt = DateTime.Now;
-            BodyFat.CreatedAt = DateTime.Now;
+            // Validate input.
+            if (!Double.TryParse(BodyWeightInput, out var newWeightVal))
+                GoalMessage = "That weight doesn't look like a number. Try again.";
+            else if (!Double.TryParse(BodyFatInput, out var newFatVal))
+                GoalMessage = "That body fat doesn't look like a number. Try again.";
+            else
+            {
+                BodyWeight = new Measurement(DateTime.Now, newWeightVal, BodyWeight.Unit, BodyWeight.Name);
+                bool refreshWeight = (prevWeightMeasurement != BodyWeight.Value);
+                if (refreshWeight)
+                    _ =MeasurementDataStore.AddItem(BodyWeight);
 
-            bool refreshWeight = (prevWeightMeasurement != BodyWeight.Value);
-            bool refreshFat = (prevFatMeasurement != BodyFat.Value);
+                BodyFat = new Measurement(DateTime.Now, newFatVal, BodyFat.Unit, BodyFat.Name);
+                bool refreshFat = (prevFatMeasurement != BodyFat.Value);
+                if (refreshFat)
+                    _ =MeasurementDataStore.AddItem(BodyFat);
 
-            if (refreshWeight)
-                _ =MeasurementDataStore.AddItemAsync(BodyWeight);
+                _ = RefreshData(refreshWeight, refreshFat);
 
-            if (refreshFat)
-                _ =MeasurementDataStore.AddItemAsync(BodyFat);
-
-            _ = RefreshData(refreshWeight, refreshFat);
+            }
         }
         
         public async Task<bool> MarkGoalAsAchieved(Guid goal)
@@ -725,11 +752,11 @@ namespace ChonkyApp.ViewModels
             };
 
             var isSuccess = await DailyGoalDataStore.DeleteGoalEntry(entry);
-            RefreshData(false, false, true);
+            await RefreshData(false, false, true);
             return isSuccess;
         }
 
-        private IEnumerable<Measurement> MetricizeEntries(IEnumerable<Measurement> entries)
+        private List<Measurement> MetricizeEntries(List<Measurement> entries)
         {
             List<Measurement> metricEntries = new List<Measurement>(entries.Count());
 

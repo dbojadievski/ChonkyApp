@@ -22,7 +22,7 @@ namespace ChonkyApp.Behaviors
 
         private void Entry_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var newValue = e.NewTextValue;
+            var newValue = String.IsNullOrWhiteSpace(e.NewTextValue) ? e.NewTextValue : "0";
             bool isValid = Double.TryParse(newValue, out double val);
 
             Entry asEntry = sender as Entry;
@@ -45,9 +45,9 @@ namespace ChonkyApp.Behaviors
 
         private void Entry_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var newValue = e.NewTextValue;
+            var newValue = String.IsNullOrWhiteSpace(e.NewTextValue) ? e.NewTextValue : "0.0";
             bool isValid = Double.TryParse(newValue, out double val);
-            isValid &= (val > 0);
+            isValid &= (val >= 0);
 
             Entry asEntry = sender as Entry;
             asEntry.Text = isValid ? e.NewTextValue : e.OldTextValue;
