@@ -1,4 +1,4 @@
-﻿//#define WITH_TEST_DATA
+﻿#define WITH_TEST_DATA
 
 using ChonkyApp.Models;
 
@@ -26,7 +26,6 @@ namespace ChonkyApp.Services
             CreateTestData();
 #endif
 
-            var allMeasurements = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement m JOIN UnitEntry u ON m.Unit = u.Unit");
         }
 
         public static void Clear()
@@ -38,7 +37,8 @@ namespace ChonkyApp.Services
         private static void CreateTestData()
         {
             // Don't double-log test data.
-            if (GetBodyFatMeasurements().Count != 0 || GetWeightMeasurements().Count != 0)
+            var allMeasurements = SQLiteProvider.Database.Query<Measurement>("SELECT * FROM Measurement m JOIN UnitEntry u ON m.Unit = u.Unit");
+            if (allMeasurements.Count != 0)
                 return;
 
             var now = DateTime.Now;

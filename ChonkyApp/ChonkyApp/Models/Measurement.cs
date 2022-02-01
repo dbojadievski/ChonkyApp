@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -72,7 +73,7 @@ namespace ChonkyApp.Models
         private Double minValue;
         private Double maxValue;
 
-        [ForeignKey(typeof(UnitEntry))]
+        [SQLiteNetExtensions.Attributes.ForeignKey(typeof(UnitEntry))]
         public Guid UnitID
         {
             get => unit;

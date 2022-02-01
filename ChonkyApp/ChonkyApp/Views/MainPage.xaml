@@ -5,7 +5,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:chonkyCommands="clr-namespace:ChonkyApp.Commands"
              xmlns:chonkyBehaviors="clr-namespace:ChonkyApp.Behaviors"
+             xmlns:chonkyViews="clr-namespace:ChonkyApp.Views"
              xmlns:charts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
              mc:Ignorable="d"
              x:Class="ChonkyApp.Views.MainPage"
              Shell.NavBarIsVisible="True">
@@ -22,81 +24,100 @@
     <ContentPage.Content>
         <Grid BackgroundColor="{StaticResource Primary}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*"/>
+                <RowDefinition />
+                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <StackLayout VerticalOptions="FillAndExpand" Orientation="Vertical" Grid.Row="0">
                 <Label Text="{Binding Title}" />
-                                
-                <!-- Goal message. -->
+                <!--Goal message.-->
                 <StackLayout Orientation="Vertical" Margin="10,10">
                     <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
                     <Label x:Name="lblGoalMessage" Text="{Binding GoalMessage}" FontAttributes="Italic" />
                     <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
                 </StackLayout>
-            
-                <!-- Main content. -->
-                <StackLayout Orientation="Horizontal">
-                    <StackLayout Orientation="Horizontal">
+
+                <!--Main content.-->
+                <Grid Margin="20, 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <StackLayout Orientation="Horizontal" Grid.Column="0" VerticalOptions="Start" HorizontalOptions="Start">
+                        <Entry 
+                                x:Name="edtWeight" 
+                                Text="{Binding BodyWeightInput}"
+                                Style="{StaticResource DataFieldEntryStyle}">
+                        </Entry>
                         <Label Text="Weight"/>
-                        <Entry 
-                            x:Name="edtWeight" 
-                            Text="{Binding BodyWeightInput}"
-                            Style="{StaticResource DataFieldEntryStyle}">
-                        </Entry>
-                    
                     </StackLayout>
-
-                    <StackLayout Orientation="Horizontal">
+                    <StackLayout Orientation="Horizontal" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="End" Grid.ColumnSpan="1">
+                        <Entry 
+                                x:Name="edtFat" 
+                                Text="{Binding BodyFatInput}" 
+                                Style="{StaticResource DataFieldEntryStyle}">
+                        </Entry>
                         <Label Text="Body Fat" />
-                        <Entry 
-                            x:Name="edtFat" 
-                            Text="{Binding BodyFatInput}" 
-                            Style="{StaticResource DataFieldEntryStyle}">
-                        </Entry>
                     </StackLayout>
+                </Grid>
 
-                
-                </StackLayout>
-            
-                <!-- KPIs -->
-                <StackLayout Orientation="Horizontal">
-                    <Label Text ="KPIs" FontAttributes="Bold" />
-                    <Label Text="BMI"/>
-                    <Label Text="{Binding BMIText}" />
-                    <Label Text="FFMI" />
-                    <Label Text="{Binding FFMIText}" />
-                    <Label Text="BFR" />
-                    <Label Text="{Binding BodyFatRangeText}" />
-                    <Label Text="dW" />
-                    <Label Text="{Binding DeltaWeightText}" />
-                </StackLayout>
+                <!--KPIs-->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <StackLayout Orientation="Vertical" Margin="20,0" Grid.Column="0">
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="BMI"/>
+                            <Label Text="{Binding BMIText}" />
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal" >
+                            <Label Text="FFMI" />
+                            <Label Text="{Binding FFMIText}" />
+                        </StackLayout>
+                    </StackLayout>
+                    <StackLayout Orientation="Vertical" Margin="20,0" HorizontalOptions="End" Grid.Column="1">
+                        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
+                            <Label Text="BFR" />
+                            <Label Text="{Binding BodyFatRangeText}" />
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+                            <Label Text="dW" />
+                            <Label Text="{Binding DeltaWeightText}" />
+                        </StackLayout>
+                    </StackLayout>
+                </Grid>
 
-                <Frame>
+                <!--Charts.-->
+                <ScrollView>
                     <StackLayout Orientation="Vertical">
-                        <Label Text="Body Weight" />
-                        <charts:ChartView 
-                            x:Name="weightChart" 
-                            Chart="{Binding Path=BodyWeightChart}" 
-                            BackgroundColor="Black" 
-                        />
+                        <Frame>
+                            <StackLayout Orientation="Vertical">
+                                <Label Text="Body Weight" />
+                                <charts:ChartView 
+                                        x:Name="weightChart" 
+                                        Chart="{Binding Path=BodyWeightChart}" 
+                                        BackgroundColor="Black" 
+                                    />
+                            </StackLayout>
+                        </Frame>
+                        <Frame>
+                            <StackLayout Orientation="Vertical">
+                                <Label Text="Body Fat %" />
+                                <charts:ChartView 
+                                        x:Name="fatChart" 
+                                        Chart="{Binding Path=BodyFatChart}" 
+                                        BackgroundColor="Black" 
+                                    />
+                            </StackLayout>
+                        </Frame>
                     </StackLayout>
-                </Frame>
-                <Frame>
-                    <StackLayout Orientation="Vertical">
-                        <Label Text="Body Fat %" />
-                        <charts:ChartView 
-                            x:Name="fatChart" 
-                            Chart="{Binding Path=BodyFatChart}" 
-                            BackgroundColor="Black" 
-                        />
-                    </StackLayout>
-                </Frame>
-            
-                <!-- SPACE goals -->
+                </ScrollView>
+
+                <!--SPACE goals-->
                 <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Margin="10">
                     <ImageButton Source="salt.png" Style="{Binding SpaceGoalSodiumStyle}" Command="{Binding SaveDailyGoalCommand}" CommandParameter="{Binding SodiumID}" />
                     <ImageButton Source="potato.png" Style="{Binding SpaceGoalPotassiumStyle}" Command="{Binding SaveDailyGoalCommand}" CommandParameter="{Binding PotassiumID}" />
@@ -104,26 +125,14 @@
                     <ImageButton Source="chilli.png" Style="{Binding SpaceGoalVitaminCStyle}" Command="{Binding SaveDailyGoalCommand}" CommandParameter="{Binding VitaminCID}" />
                     <ImageButton Source="sunflower.png" Style="{Binding SpaceGoalVitaminEStyle}" Command="{Binding SaveDailyGoalCommand}" CommandParameter="{Binding VitaminEID}" />
                 </StackLayout>
-
                 <Button 
-                    Text="Save Data Point" 
-                    VerticalOptions="Center" 
-                    Style="{StaticResource BaseButtonStyle}"
-                    Command="{Binding SaveDataPointCommand}"
-                />
+                        Text="Save Data Point" 
+                        VerticalOptions="Center" 
+                        Style="{StaticResource BaseButtonStyle}"
+                        Command="{Binding SaveDataPointCommand}"
+                        Margin="20, 0"
+                    />
             </StackLayout>
-            
-            <!-- Nav buttons.-->
-            <Grid Grid.Row="1" BackgroundColor="{StaticResource Primary}" Margin="0" Padding="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <ImageButton Grid.Column="0" Source="profile_pic.png" Clicked="ProfilePageButton_Clicked" HorizontalOptions="FillAndExpand" VerticalOptions="Center" BackgroundColor="{StaticResource Primary}" />
-                <ImageButton Grid.Column="1" Source="pulse.png" Clicked="HeartbeatButton_Clicked" HorizontalOptions="FillAndExpand" VerticalOptions="Center" BackgroundColor="{StaticResource Primary}" />
-                <Button Text="H" Grid.Column="2" Style="{StaticResource BaseButtonStyle}" HorizontalOptions="FillAndExpand" Margin="5,10"/>
-            </Grid>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

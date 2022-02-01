@@ -36,7 +36,6 @@ namespace ChonkyApp.Droid
                 Window.SetStatusBarColor(color);
                 // The thicker bar at bottom of Android screen.
                 Window.SetNavigationBarColor(color);
-
             }
         }
     }

@@ -12,15 +12,15 @@ using Xamarin.Forms.Xaml;
 namespace ChonkyApp.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class PulseView : ContentPage
+    public partial class NavigationPage : TabbedPage
     {
-        PulseViewModel viewModel;
-        public PulseView()
+        private PulseViewModel pulseViewModel;
+        
+        public NavigationPage()
         {
             InitializeComponent();
-            
-            viewModel = new PulseViewModel();
-            this.BindingContext = viewModel;
+            pulseViewModel = new PulseViewModel();
+            this.BindingContext = pulseViewModel;
         }
     }
 }

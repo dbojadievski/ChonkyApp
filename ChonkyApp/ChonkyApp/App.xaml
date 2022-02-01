@@ -13,20 +13,30 @@
             <Color x:Key="PrimaryTextColor">White</Color>
             <Color x:Key="PrimaryAccentColor">Purple</Color>
             <Color x:Key="PrimaryHighlightColor">LightGreen</Color>
+            <Color x:Key="PrimaryBorderColor">Gray</Color>
 
             <Style TargetType="Grid">
                 <Setter Property="BackgroundColor" Value="{Binding Primary}" />
             </Style>
 
-            <Style TargetType="ImageButton">
-                <Setter Property="WidthRequest" Value="64" />
-                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
-            </Style>
-
-            <!--<Style TargetType="BoxView" x:Name="BaseSeparatorStyle">
-                <Setter Property="Color" Value="{StaticResource PrimaryTextColor}" />
-                <Setter Property="HeightRequest" Value="1" />
-            </Style>-->
+            <ControlTemplate x:Key="SpaceGoalButtonCheckboxTemplate">
+                <CheckBox>
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CheckedStates">
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccentColor}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Unchecked">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="DimGray" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </CheckBox>
+            </ControlTemplate>
 
             <Style TargetType="Frame" x:Name="BaseFrameStyle">
                 <Setter Property="Background" Value="{StaticResource Primary}" />
@@ -57,7 +67,7 @@
                 <Setter Property="HorizontalTextAlignment" Value="Center" />
                 <Setter Property="VerticalTextAlignment" Value="Center" />
                 <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="MinimumWidthRequest" Value="200" />
+                <Setter Property="MinimumHeightRequest" Value="80" />
             </Style>
             <Style TargetType="Entry" x:Key="NumericEntry" BasedOn="{StaticResource DataFieldEntryStyle}" />
             <Style TargetType="Button" x:Key="BaseButtonStyle">
@@ -74,14 +84,18 @@
                 <Setter Property="HeightRequest" Value="50" />
             </Style>
             <Style TargetType="ImageButton" x:Key="SpaceGoalButtonStyle">
-                <Setter Property="BorderColor" Value="{StaticResource PrimaryAccentColor}" />
-                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccentColor}" />
                 <Setter Property="WidthRequest" Value="50" />
                 <Setter Property="HeightRequest" Value="50" />
                 <Setter Property="CornerRadius" Value="50" />
             </Style>
             <Style TargetType="ImageButton" x:Key="SpaceGoalButtonUncheckedStyle" BasedOn="{StaticResource SpaceGoalButtonStyle}">
                 <Setter Property="BackgroundColor" Value="DimGray" />
+            </Style>
+            <Style TargetType="ImageButton" x:Key="TabBarButtonStyle">
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="VerticalOptions" Value="FillAndExpand" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
             </Style>
             
             <Style TargetType="DatePicker" x:Key="BaseDatePickerStyle">
@@ -90,7 +104,6 @@
                 <Setter Property="MinimumDate" Value="01/01/1900" />
                 <Setter Property="Visual" Value="Material" />
             </Style>
-            
 
             <Image Source="profile.png" x:Key="ProfilePicture" />
             <Style TargetType="charts:ChartView">
@@ -98,7 +111,6 @@
                 <Setter Property="MinimumHeightRequest" Value="100" />
                 <Setter Property="MinimumWidthRequest" Value="100" />
             </Style>
-           
             
             <!-- Strings. -->
             <x:String x:Key="SodiumGoalReachedMessage">

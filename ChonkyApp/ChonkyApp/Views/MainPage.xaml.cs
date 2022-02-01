@@ -40,7 +40,7 @@ namespace ChonkyApp.Views
 
         private void HeartbeatButton_Clicked(object sender, EventArgs e)
         {
-            Navigation.PushAsync(new HeartbeatView());
+            Navigation.PushAsync(new PulseView());
         }
     }
 }

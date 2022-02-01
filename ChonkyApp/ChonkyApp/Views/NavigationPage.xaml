@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:chonkyViews="clr-namespace:ChonkyApp.Views"
+            xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
+            x:Class="ChonkyApp.Views.NavigationPage" 
+            BarBackgroundColor="{StaticResource Primary}" 
+            SelectedTabColor="{StaticResource PrimaryAccentColor}" 
+            android:TabbedPage.ToolbarPlacement="Bottom" 
+            android:TabbedPage.IsSmoothScrollEnabled="True" >
+  <!--Pages can be added as references or inline-->
+    <chonkyViews:PulseView Title="Pulse"  IconImageSource="pulse.png" IsEnabled="{Binding IsPulseStale}" />
+    <chonkyViews:MainPage Title="Main" IconImageSource="restaurant.png" />
+    <chonkyViews:ProfilePage Title="Profile" IconImageSource="profile_pic.png" />
+</TabbedPage>

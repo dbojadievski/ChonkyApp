@@ -12,15 +12,15 @@ namespace ChonkyApp.Services
     public class MeasurementKindDataStore
     {
         private const String TABLE_NAME = "MeasurementKindEntry";
-        private const Double WELLNESS_MIN = -1d;
-        private const double WELLNESS_MAX = 1d;
+        public const Double WELLNESS_MIN = -1d;
+        public const double WELLNESS_MAX = 1d;
 
         #region Optimization cache.
-        private const String MEASUREMENT_NAME_SLEEP = "Sleep";
-        private const String MEASUREMENT_NAME_MOOD = "Mood";
-        private const String MEASUREMENT_NAME_SORENESS = "Soreness";
-        private const String MEASUREMENT_NAME_STRESS = "Stress";
-        private const String MEASUREMENT_NAME_NUTRITION = "Nutrition";
+        public const String MEASUREMENT_NAME_SLEEP = "Sleep";
+        public const String MEASUREMENT_NAME_MOOD = "Mood";
+        public const String MEASUREMENT_NAME_SORENESS = "Soreness";
+        public const String MEASUREMENT_NAME_STRESS = "Stress";
+        public const String MEASUREMENT_NAME_NUTRITION = "Nutrition";
 
 
         private static MeasurementKindEntry sleepMeasurementKind;
@@ -28,6 +28,30 @@ namespace ChonkyApp.Services
         private static MeasurementKindEntry sorenessMeasurementKind;
         private static MeasurementKindEntry stressMeasurementKind;
         private static MeasurementKindEntry nutritionMeasurementKind;
+
+        public static MeasurementKindEntry SleepMeasurementKind
+        {
+            get => sleepMeasurementKind;
+        }
+
+        public static MeasurementKindEntry MoodMeasurementKind
+        {
+            get => moodMeasurementKind;
+        }
+
+        public static MeasurementKindEntry SorenessMeasurementKind
+        {
+            get => sorenessMeasurementKind;
+        }
+
+        public static MeasurementKindEntry StressMeasurementKind
+        {
+            get => stressMeasurementKind;
+        }
+        public static MeasurementKindEntry NutritionMeasurementKind
+        {
+            get => nutritionMeasurementKind;
+        }
         #endregion
 
         private static bool CreateTableMeasurementKindEntries()
@@ -43,6 +67,21 @@ namespace ChonkyApp.Services
                 Trace.TraceError(ex.Message);
             }
 
+            return wasCreated;
+        }
+
+        private static bool CreateTableCustomMeasurements()
+        {
+            var wasCreated = false;
+            try
+            {
+                var result = SQLiteProvider.Database.CreateTable<CustomMeasurement>();
+                wasCreated = (result == SQLite.CreateTableResult.Created);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError (ex.Message);
+            }
             return wasCreated;
         }
 
@@ -118,6 +157,8 @@ namespace ChonkyApp.Services
         {
             CreateTableMeasurementKindEntries();
             await InsertMissingDefaultData();
+
+            CreateTableCustomMeasurements();
         }
 
         public static Boolean InsertRange(IEnumerable<MeasurementKindEntry> measurementKindEntries)
@@ -142,12 +183,29 @@ namespace ChonkyApp.Services
 
             try
             {
-                var numAffected =SQLiteProvider.Database.Insert(entry);
+                var numAffected = SQLiteProvider.Database.Insert(entry);
                 result = (numAffected == 1);
             }
             catch (Exception ex)
             {
                 Trace.TraceError(ex.Message);
+            }
+
+            return result;
+        }
+
+        public static Boolean Insert(IEnumerable<CustomMeasurement> measurements)
+        {
+            var result = false;
+            
+            try
+            {
+                var numAffected = SQLiteProvider.Database.InsertAll(measurements);
+                result = (numAffected == measurements.Count());
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError (e.Message);
             }
 
             return result;
@@ -181,6 +239,48 @@ namespace ChonkyApp.Services
             {
                 Trace.TraceError(ex.Message);
             }
+            return result;
+        }
+
+        public static IEnumerable<CustomMeasurement> Find(MeasurementKindEntry measurementKind)
+        {
+            IEnumerable<CustomMeasurement> result = null;
+
+            try
+            {
+                result = SQLiteProvider.Database.Query<CustomMeasurement>("SELECT * FROM CustomMeasurement WHERE MeasurementKindID = ?", measurementKind.ID);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.Message);
+            }
+
+            return result;
+        }
+
+        public static IEnumerable<CustomMeasurement> FindWellnessItems(DateTime? cutoff = null)
+        {
+            IEnumerable<CustomMeasurement> result = null;
+
+            try
+            {
+                var paramList = new List<Object> { SleepMeasurementKind.ID, MoodMeasurementKind.ID, sorenessMeasurementKind.ID, StressMeasurementKind.ID, NutritionMeasurementKind.ID };
+
+                var builder = new StringBuilder("SELECT * FROM CustomMeasurement WHERE MeasurementKindID in ?");
+                if (cutoff.HasValue)
+                {
+                    paramList.Add(cutoff.Value);
+                    builder.Append(" AND CreatedAt >= ?");
+                }
+
+                var paramArray = paramList.ToArray();
+                result = SQLiteProvider.Database.Query<CustomMeasurement>(builder.ToString(), paramArray);
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError(e.Message);
+            }
+
             return result;
         }
 
