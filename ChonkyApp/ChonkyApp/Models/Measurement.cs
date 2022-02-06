@@ -216,7 +216,7 @@ namespace ChonkyApp.Models
         public Double Value
         {
             get => value;
-            set => SetProperty(ref value, value);
+            set => SetProperty(ref this.value, value);
         }
 
         public CustomMeasurement(DateTime recordedAt, Double value, Guid measurementKindID)

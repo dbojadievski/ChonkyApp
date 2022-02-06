@@ -13,7 +13,10 @@ namespace ChonkyApp.Services
     {
         private const String TABLE_NAME = "MeasurementKindEntry";
         public const Double WELLNESS_MIN = -1d;
-        public const double WELLNESS_MAX = 1d;
+        public const Double WELLNESS_MAX = 1d;
+        public const Double SKINFOLD_MIN = 0d;
+        public const Double SKINFOLD_MAX = 1000d;
+
 
         #region Optimization cache.
         public const String MEASUREMENT_NAME_SLEEP = "Sleep";
@@ -22,12 +25,23 @@ namespace ChonkyApp.Services
         public const String MEASUREMENT_NAME_STRESS = "Stress";
         public const String MEASUREMENT_NAME_NUTRITION = "Nutrition";
 
+        public const String MEASUREMENT_NAME_SKINFOLD_CHEST = "Chest Skinfold";
+        public const String MEASUREMENT_NAME_SKINFOLD_ABDOMEN = "Abdomen Skinfold";
+        public const String MEASUREMENT_NAME_SKINFOLD_THIGH = "Thigh Skinfold";
+        public const String MEASUREMENT_NAME_SKINFOLD_TRICEPS = "Triceps Skinfold";
+        public const String MEASUREMENT_NAME_SKINFOLD_SUPRAILIUM = "Suprailium Skinfold";
 
         private static MeasurementKindEntry sleepMeasurementKind;
         private static MeasurementKindEntry moodMeasurementKind;
         private static MeasurementKindEntry sorenessMeasurementKind;
         private static MeasurementKindEntry stressMeasurementKind;
         private static MeasurementKindEntry nutritionMeasurementKind;
+
+        private static MeasurementKindEntry chestSkinfoldMeasurementKind;
+        private static MeasurementKindEntry abdomenSkinfoldMeasurementKind;
+        private static MeasurementKindEntry thighSkinfoldMeasurementKind;
+        private static MeasurementKindEntry tricepsSkinfoldMeasurementKind;
+        private static MeasurementKindEntry suprailiumSkinfoldMeasurementKind;
 
         public static MeasurementKindEntry SleepMeasurementKind
         {
@@ -48,9 +62,35 @@ namespace ChonkyApp.Services
         {
             get => stressMeasurementKind;
         }
+
         public static MeasurementKindEntry NutritionMeasurementKind
         {
             get => nutritionMeasurementKind;
+        }
+
+        public static MeasurementKindEntry ChestSkinfoldMeasurementKind
+        {
+            get => chestSkinfoldMeasurementKind;
+        }
+
+        public static MeasurementKindEntry AbdomenSkinfoldMeasurementKind
+        {
+            get => abdomenSkinfoldMeasurementKind;
+        }
+
+        public static MeasurementKindEntry ThighSkinfoldMeasurementKind
+        {
+            get => thighSkinfoldMeasurementKind;
+        }
+
+        public static MeasurementKindEntry TricepsSkinfoldMeasurementKind
+        {
+            get => tricepsSkinfoldMeasurementKind;
+        }
+
+        public static MeasurementKindEntry SuprailiumSkinfoldMeasurementKind
+        {
+            get => suprailiumSkinfoldMeasurementKind;
         }
         #endregion
 
@@ -87,54 +127,42 @@ namespace ChonkyApp.Services
 
         private static async Task InsertMissingDefaultData()
         {
+            #region Wellness measurements.
             {
                 var insertList = new List<MeasurementKindEntry>(10);
 
-                // Wellness measurements.
                 var unitTypeRelative = UnitDataStore.GetForUnitType(UnitType.Relative).Result;
                 Debug.Assert(unitTypeRelative != null);
 
-                sleepMeasurementKind = FindByName(MEASUREMENT_NAME_SLEEP);
-                if (sleepMeasurementKind == null)
-                {
-                    sleepMeasurementKind = new MeasurementKindEntry(MEASUREMENT_NAME_SLEEP, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX);
-                    insertList.Add(sleepMeasurementKind);
-                }
-
-
-                moodMeasurementKind = FindByName(MEASUREMENT_NAME_MOOD);
-                if (moodMeasurementKind == null)
-                {
-                    moodMeasurementKind = new MeasurementKindEntry(MEASUREMENT_NAME_MOOD, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX);
-                    insertList.Add(moodMeasurementKind);
-                }
-
-                sorenessMeasurementKind = FindByName(MEASUREMENT_NAME_SORENESS);
-                if (sorenessMeasurementKind == null)
-                {
-                    sorenessMeasurementKind = new MeasurementKindEntry(MEASUREMENT_NAME_SORENESS, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX);
-                    insertList.Add(sorenessMeasurementKind);
-                }
-
-                stressMeasurementKind = FindByName(MEASUREMENT_NAME_STRESS);
-                if (stressMeasurementKind == null)
-                {
-                    stressMeasurementKind = new MeasurementKindEntry(MEASUREMENT_NAME_STRESS, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX);
-                    insertList.Add(stressMeasurementKind);
-                }
-
-                nutritionMeasurementKind = FindByName(MEASUREMENT_NAME_NUTRITION);
-                if (nutritionMeasurementKind == null)
-                {
-                    nutritionMeasurementKind = new MeasurementKindEntry(MEASUREMENT_NAME_NUTRITION, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX);
-                    insertList.Add(nutritionMeasurementKind);
-                }
+                InsertMeasurement(ref sleepMeasurementKind, MEASUREMENT_NAME_SLEEP, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX, insertList);
+                InsertMeasurement(ref moodMeasurementKind, MEASUREMENT_NAME_MOOD, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX, insertList);
+                InsertMeasurement(ref sorenessMeasurementKind, MEASUREMENT_NAME_SORENESS, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX, insertList);
+                InsertMeasurement(ref stressMeasurementKind, MEASUREMENT_NAME_STRESS, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX, insertList);
+                InsertMeasurement(ref nutritionMeasurementKind, MEASUREMENT_NAME_NUTRITION, unitTypeRelative, WELLNESS_MIN, WELLNESS_MAX, insertList);
 
                 if (insertList.Count > 0)
-                   InsertAndAssert(insertList);
+                   ExecuteInsertList(insertList);
             }
+            #endregion
 
-            void InsertAndAssert(List<MeasurementKindEntry> entries)
+            #region Skinfold measurements
+            {
+                var insertList = new List<MeasurementKindEntry>();
+                var unitTypeSkinfold = UnitDataStore.GetForUnit(Unit.Millimeter).Result;
+                Debug.Assert(unitTypeSkinfold != null);
+
+                InsertMeasurement(ref chestSkinfoldMeasurementKind, MEASUREMENT_NAME_SKINFOLD_CHEST, unitTypeSkinfold, SKINFOLD_MIN, SKINFOLD_MAX, insertList);
+                InsertMeasurement(ref abdomenSkinfoldMeasurementKind, MEASUREMENT_NAME_SKINFOLD_ABDOMEN, unitTypeSkinfold, SKINFOLD_MIN, SKINFOLD_MAX, insertList);
+                InsertMeasurement(ref thighSkinfoldMeasurementKind, MEASUREMENT_NAME_SKINFOLD_THIGH, unitTypeSkinfold, SKINFOLD_MIN, SKINFOLD_MAX, insertList);
+                InsertMeasurement(ref tricepsSkinfoldMeasurementKind, MEASUREMENT_NAME_SKINFOLD_TRICEPS, unitTypeSkinfold, SKINFOLD_MIN, SKINFOLD_MAX, insertList);
+                InsertMeasurement(ref suprailiumSkinfoldMeasurementKind, MEASUREMENT_NAME_SKINFOLD_SUPRAILIUM, unitTypeSkinfold, SKINFOLD_MIN, SKINFOLD_MAX, insertList);
+
+                if (insertList.Count > 0)
+                    ExecuteInsertList(insertList);
+            }
+#endregion
+
+            void ExecuteInsertList(List<MeasurementKindEntry> entries)
             {
                 var inserted = InsertRange(entries);
                 Debug.Assert(inserted);
@@ -144,6 +172,58 @@ namespace ChonkyApp.Services
                     Trace.TraceError($"Could not insert missing default data for table {TABLE_NAME}.");
 
                 // var all = GetAll();
+            }
+
+            void InsertMeasurement(ref MeasurementKindEntry entry, String measurementName, UnitEntry unit, Double minVal, Double maxVal, List<MeasurementKindEntry> insertList)
+            {
+                entry = FindByName(measurementName);
+                if (entry == null)
+                {
+                    entry = new MeasurementKindEntry(measurementName, unit, minVal, maxVal);
+                    insertList.Add(entry);
+                }
+            }
+        }
+
+        public static bool ClearWellnessMeasurements()
+        {
+            bool wasDeleted = false;
+            var paramList = new List<Object> { SleepMeasurementKind.ID, MoodMeasurementKind.ID, sorenessMeasurementKind.ID, StressMeasurementKind.ID, NutritionMeasurementKind.ID }.ToArray();
+            
+            try
+            {
+                SQLiteProvider.Database.Execute("DELETE FROM CustomMeasurement WHERE MeasurementKindID IN (?)", paramList);
+                wasDeleted = true;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.Message);
+            }
+
+            return wasDeleted;
+        }
+
+        public void ClearCaliperMeasurements()
+        {
+            bool wasDeleted = false;
+
+            var paramList = new List<Object> 
+            { 
+                  ChestSkinfoldMeasurementKind.ID
+                , AbdomenSkinfoldMeasurementKind.ID
+                , ThighSkinfoldMeasurementKind.ID
+                , TricepsSkinfoldMeasurementKind.ID
+                , SuprailiumSkinfoldMeasurementKind.ID 
+            }.ToArray();
+
+            try
+            {
+                SQLiteProvider.Database.Execute("DELETE FROM CustomMeasurement WHERE MeasurementKindID IN (?)", paramList);
+                wasDeleted = true;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError (ex.Message);
             }
         }
 
@@ -159,6 +239,7 @@ namespace ChonkyApp.Services
             await InsertMissingDefaultData();
 
             CreateTableCustomMeasurements();
+            //ClearWellnessMeasurements();
         }
 
         public static Boolean InsertRange(IEnumerable<MeasurementKindEntry> measurementKindEntries)
@@ -242,13 +323,22 @@ namespace ChonkyApp.Services
             return result;
         }
 
-        public static IEnumerable<CustomMeasurement> Find(MeasurementKindEntry measurementKind)
+        public static IEnumerable<CustomMeasurement> Find(MeasurementKindEntry measurementKind, DateTime? cutoff)
         {
             IEnumerable<CustomMeasurement> result = null;
 
+            List<Object> param = new List<Object>() { measurementKind.ID};
+            StringBuilder sb = new StringBuilder("SELECT * FROM CustomMeasurement WHERE MeasurementKindID = ? ");
+            if (cutoff.HasValue)
+            {
+                sb.Append("AND CreatedAt >= ?");
+                param.Add(cutoff.Value);
+            }
+
             try
             {
-                result = SQLiteProvider.Database.Query<CustomMeasurement>("SELECT * FROM CustomMeasurement WHERE MeasurementKindID = ?", measurementKind.ID);
+
+                result = SQLiteProvider.Database.Query<CustomMeasurement>(sb.ToString(), param.ToArray());
             }
             catch (Exception ex)
             {
@@ -258,7 +348,7 @@ namespace ChonkyApp.Services
             return result;
         }
 
-        public static IEnumerable<CustomMeasurement> FindWellnessItems(DateTime? cutoff = null)
+        public static IEnumerable<CustomMeasurement> FindWellnessItems()
         {
             IEnumerable<CustomMeasurement> result = null;
 
@@ -266,13 +356,7 @@ namespace ChonkyApp.Services
             {
                 var paramList = new List<Object> { SleepMeasurementKind.ID, MoodMeasurementKind.ID, sorenessMeasurementKind.ID, StressMeasurementKind.ID, NutritionMeasurementKind.ID };
 
-                var builder = new StringBuilder("SELECT * FROM CustomMeasurement WHERE MeasurementKindID in ?");
-                if (cutoff.HasValue)
-                {
-                    paramList.Add(cutoff.Value);
-                    builder.Append(" AND CreatedAt >= ?");
-                }
-
+                var builder = new StringBuilder("SELECT * FROM CustomMeasurement WHERE MeasurementKindID in (?) ");
                 var paramArray = paramList.ToArray();
                 result = SQLiteProvider.Database.Query<CustomMeasurement>(builder.ToString(), paramArray);
             }

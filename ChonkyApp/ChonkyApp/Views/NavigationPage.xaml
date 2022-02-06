@@ -9,7 +9,7 @@
             android:TabbedPage.ToolbarPlacement="Bottom" 
             android:TabbedPage.IsSmoothScrollEnabled="True" >
   <!--Pages can be added as references or inline-->
-    <chonkyViews:PulseView Title="Pulse"  IconImageSource="pulse.png" IsEnabled="{Binding IsPulseStale}" />
+    <chonkyViews:PulseView Title="Pulse"  IconImageSource="pulse.png" />
     <chonkyViews:MainPage Title="Main" IconImageSource="restaurant.png" />
     <chonkyViews:ProfilePage Title="Profile" IconImageSource="profile_pic.png" />
 </TabbedPage>

@@ -2,6 +2,7 @@
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:chonkyBehaviors="clr-namespace:ChonkyApp.Behaviors"
+             xmlns:xct="clr-namespace:Xamarin.CommunityToolkit.UI.Views;assembly=Xamarin.CommunityToolkit"
              xmlns:charts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
              x:Class="ChonkyApp.App">
     <!--
@@ -38,6 +39,9 @@
                 </CheckBox>
             </ControlTemplate>
 
+            <Style TargetType="xct:DockLayout">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+            </Style>
             <Style TargetType="Frame" x:Name="BaseFrameStyle">
                 <Setter Property="Background" Value="{StaticResource Primary}" />
                 <Setter Property="BorderColor" Value="Gray" />
@@ -66,8 +70,8 @@
             <Style TargetType="Entry" x:Key="DataFieldEntryStyle">
                 <Setter Property="HorizontalTextAlignment" Value="Center" />
                 <Setter Property="VerticalTextAlignment" Value="Center" />
-                <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="MinimumHeightRequest" Value="80" />
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="TextColor" Value="{Binding PrimaryTextColor}" />
             </Style>
             <Style TargetType="Entry" x:Key="NumericEntry" BasedOn="{StaticResource DataFieldEntryStyle}" />
             <Style TargetType="Button" x:Key="BaseButtonStyle">

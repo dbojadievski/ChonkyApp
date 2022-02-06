@@ -31,37 +31,27 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <StackLayout VerticalOptions="FillAndExpand" Orientation="Vertical" Grid.Row="0">
-                <Label Text="{Binding Title}" />
                 <!--Goal message.-->
-                <StackLayout Orientation="Vertical" Margin="10,10">
-                    <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
-                    <Label x:Name="lblGoalMessage" Text="{Binding GoalMessage}" FontAttributes="Italic" />
-                    <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
-                </StackLayout>
+                <chonkyViews:CoachMessageView />
 
                 <!--Main content.-->
-                <Grid Margin="20, 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
+                <StackLayout Orientation="Horizontal" Margin="20,0">
                     <StackLayout Orientation="Horizontal" Grid.Column="0" VerticalOptions="Start" HorizontalOptions="Start">
                         <Entry 
-                                x:Name="edtWeight" 
-                                Text="{Binding BodyWeightInput}"
-                                Style="{StaticResource DataFieldEntryStyle}">
+                            Text="{Binding BodyWeightInput}"
+                            Style="{StaticResource DataFieldEntryStyle}">
                         </Entry>
                         <Label Text="Weight"/>
                     </StackLayout>
-                    <StackLayout Orientation="Horizontal" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="End" Grid.ColumnSpan="1">
+                    <StackLayout Orientation="Horizontal" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="End">
                         <Entry 
-                                x:Name="edtFat" 
-                                Text="{Binding BodyFatInput}" 
-                                Style="{StaticResource DataFieldEntryStyle}">
+                            Text="{Binding BodyFatInput}" 
+                            Style="{StaticResource DataFieldEntryStyle}">
                         </Entry>
                         <Label Text="Body Fat" />
+                        <Button Text="ESTIMATE" Clicked="ButtonEstimate_Clicked" />
                     </StackLayout>
-                </Grid>
+                </StackLayout>
 
                 <!--KPIs-->
                 <Grid>
@@ -71,28 +61,28 @@
                     </Grid.ColumnDefinitions>
                     <StackLayout Orientation="Vertical" Margin="20,0" Grid.Column="0">
                         <StackLayout Orientation="Horizontal">
+                            <Label Text="dW" />
+                            <Label Text="{Binding DeltaWeightText}" />
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal">
                             <Label Text="BMI"/>
                             <Label Text="{Binding BMIText}" />
+                        </StackLayout>
+                    </StackLayout>
+                    <StackLayout Orientation="Vertical" Margin="20,0" HorizontalOptions="End" Grid.Column="1">
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="BFR" />
+                            <Label Text="{Binding BodyFatRangeText}" />
                         </StackLayout>
                         <StackLayout Orientation="Horizontal" >
                             <Label Text="FFMI" />
                             <Label Text="{Binding FFMIText}" />
                         </StackLayout>
                     </StackLayout>
-                    <StackLayout Orientation="Vertical" Margin="20,0" HorizontalOptions="End" Grid.Column="1">
-                        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
-                            <Label Text="BFR" />
-                            <Label Text="{Binding BodyFatRangeText}" />
-                        </StackLayout>
-                        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
-                            <Label Text="dW" />
-                            <Label Text="{Binding DeltaWeightText}" />
-                        </StackLayout>
-                    </StackLayout>
                 </Grid>
 
                 <!--Charts.-->
-                <ScrollView>
+                <ScrollView Margin="0, 20">
                     <StackLayout Orientation="Vertical">
                         <Frame>
                             <StackLayout Orientation="Vertical">
@@ -101,7 +91,7 @@
                                         x:Name="weightChart" 
                                         Chart="{Binding Path=BodyWeightChart}" 
                                         BackgroundColor="Black" 
-                                    />
+                                />
                             </StackLayout>
                         </Frame>
                         <Frame>
@@ -111,7 +101,17 @@
                                         x:Name="fatChart" 
                                         Chart="{Binding Path=BodyFatChart}" 
                                         BackgroundColor="Black" 
-                                    />
+                                />
+                            </StackLayout>
+                        </Frame>
+                        <Frame>
+                            <StackLayout Orientation="Vertical">
+                                <Label Text="Athlete Pulse" />
+                                <charts:ChartView 
+                                        x:Name="wellnessChart" 
+                                        Chart="{Binding Path=AthletePulseChart}" 
+                                        BackgroundColor="Black" 
+                                />
                             </StackLayout>
                         </Frame>
                     </StackLayout>

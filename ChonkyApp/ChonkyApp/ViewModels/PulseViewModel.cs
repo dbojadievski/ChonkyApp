@@ -13,8 +13,13 @@ using ChonkyApp.Views;
 
 namespace ChonkyApp.ViewModels
 {
-    public class PulseViewModel: ViewModelBase
+    public class PulseViewModel : ViewModelBase
     {
+        private const String MESSAGE_PULSE_PROMPT = "How are you feeling today?\r\nBe honest.";
+        private const String MESSAGE_PULSE_DATA_ENTERED = "Nice! This'll help me understand you better.";
+        private const String MESSAGE_PULSE_DATA_STILL_FRESH = "We have some good data already.\r\n Come back tomorrow.";
+        private const String MESSAGE_PULSE_DATA_FIELD_SKIPPED = "Looks like you missed some questions.";
+        private const String MESSAGE_PULSE_DATA_INSERT_FAILED = "Uh-on.\r\nI couldn't save your answers.";
         Double averageWellness;
 
         Double averageSleep;
@@ -29,8 +34,14 @@ namespace ChonkyApp.ViewModels
         Double stress;
         Double nutrition;
 
-        Boolean isSaveEnabled;
         Boolean isPulseStale;
+
+        List<CustomMeasurement> recentWellnessData;
+        private IEnumerable<CustomMeasurement> sleepData;
+        private IEnumerable<CustomMeasurement> moodData;
+        private IEnumerable<CustomMeasurement> stressData;
+        private IEnumerable<CustomMeasurement> sorenessData;
+        private IEnumerable<CustomMeasurement> nutritionData;
 
         private String statusMessage;
         private ICommand saveEntryCommand;
@@ -80,7 +91,7 @@ namespace ChonkyApp.ViewModels
         public Double Mood
         {
             get => mood;
-            set => SetProperty (ref mood, value);
+            set => SetProperty(ref mood, value);
         }
         public Double Soreness
         {
@@ -117,19 +128,54 @@ namespace ChonkyApp.ViewModels
             set => SetProperty(ref isPulseStale, value);
         }
 
-        public String StatusMessage
+        public String GoalMessage
         {
             get => statusMessage;
             set => SetProperty(ref statusMessage, value);
         }
 
+        public IEnumerable<CustomMeasurement> SleepData
+        {
+            get => sleepData;
+            set => SetProperty(ref sleepData, value);
+        }
+
+        public IEnumerable<CustomMeasurement> MoodData
+        {
+            get => moodData;
+            set => SetProperty(ref moodData, value);
+        }
+
+        public IEnumerable<CustomMeasurement> SorenessData
+        {
+            get => sorenessData;
+            set => SetProperty(ref sorenessData, value);
+        }
+
+        public IEnumerable<CustomMeasurement> StressData
+        {
+            get => stressData;
+            set => SetProperty(ref stressData, value);
+        }
+
+        public IEnumerable<CustomMeasurement> NutritionData
+        {
+            get => nutritionData;
+            set => SetProperty(ref nutritionData, value);
+        }
+
+        public List<CustomMeasurement> RecentWellnessData
+        {
+            get => recentWellnessData;
+            set => SetProperty(ref recentWellnessData, value);
+        }
+
         private void LoadDaily()
         {
-            var wellnessItemCutoffTime = DateTime.Now.AddHours(-8);
-
-            // Since the items 
-            var items = MeasurementKindDataStore.FindWellnessItems(wellnessItemCutoffTime);
-            IsPulseStale = (items == null || items.Count() == 0);
+            var wellnessItemCutoffTime = DateTime.Today;
+            var dailyItems = sleepData.Where(dt => dt.CreatedAt >= wellnessItemCutoffTime);
+            
+            IsPulseStale = (dailyItems == null || dailyItems.Count() == 0);
         }
 
         private void ClearValues()
@@ -141,59 +187,92 @@ namespace ChonkyApp.ViewModels
             Nutrition = -2;
         }
 
-        private async Task RefreshData()
+        private async Task RefreshData(Boolean onSave = false)
         {
-            StatusMessage = "How do you feel today?" + "\r\n" + "Be honest";
-
-            LoadDaily();
             ClearValues();
 
-            var sleepEntries = MeasurementKindDataStore.Find(MeasurementKindDataStore.SleepMeasurementKind);
-            AverageSleep = sleepEntries.Count() == 0 ? 0d : sleepEntries.Average(e => e.Value);
+            var recentCutoff = DateTime.Now.AddDays(7 * 8 * -1);
+            SleepData = MeasurementKindDataStore.Find(MeasurementKindDataStore.SleepMeasurementKind, recentCutoff);
+            AverageSleep = SleepData.Count() == 0 ? 0d : sleepData.Average(e => e.Value);
 
-            var moodEntries = MeasurementKindDataStore.Find(MeasurementKindDataStore.MoodMeasurementKind);
-            AverageMood = moodEntries.Count() == 0 ? 0d : moodEntries.Average(e => e.Value);
+            MoodData = MeasurementKindDataStore.Find(MeasurementKindDataStore.MoodMeasurementKind, recentCutoff);
+            AverageMood = MoodData.Count() == 0 ? 0d : moodData.Average(e => e.Value);
 
-            var sorenessEntries = MeasurementKindDataStore.Find(MeasurementKindDataStore.SorenessMeasurementKind);
-            AverageSoreness = sorenessEntries.Count() == 0 ? 0d : sorenessEntries.Average(e => e.Value);
+            SorenessData = MeasurementKindDataStore.Find(MeasurementKindDataStore.SorenessMeasurementKind, recentCutoff);
+            AverageSoreness = SorenessData.Count() == 0 ? 0d : sorenessData.Average(e => e.Value);
 
-            var stressEntries = MeasurementKindDataStore.Find(MeasurementKindDataStore.StressMeasurementKind);
-            AverageStress = stressEntries.Count() == 0 ? 0d : stressEntries.Average(e => e.Value);
+            StressData = MeasurementKindDataStore.Find(MeasurementKindDataStore.StressMeasurementKind, recentCutoff);
+            AverageStress = StressData.Count() == 0 ? 0d : stressData.Average(e => e.Value);
 
-            var nutritionEntries = MeasurementKindDataStore.Find(MeasurementKindDataStore.NutritionMeasurementKind);
-            AverageNutrition = nutritionEntries.Count() == 0 ? 0d: nutritionEntries.Average(e => e.Value);
+            NutritionData = MeasurementKindDataStore.Find(MeasurementKindDataStore.NutritionMeasurementKind, recentCutoff);
+            AverageNutrition = NutritionData.Count() == 0 ? 0d: nutritionData.Average(e => e.Value);
+
+            RecentWellnessData = new List<CustomMeasurement>();
+
+            var numEntries = SleepData.Count();
+            for (var i = 0; i < numEntries; i++)
+            {
+                var sleepEntry = SleepData.ElementAt(i);
+                var moodEntry = MoodData.ElementAt(i);
+                var sorenessEntry = SorenessData.ElementAt(i);
+                var stressEntry = StressData.ElementAt(i);
+                var nutritionEntry = NutritionData.ElementAt(i);
+
+                var avg = ((sleepEntry.Value + moodEntry.Value + sorenessEntry.Value + stressEntry.Value + nutritionEntry.Value) / 5d);
+                RecentWellnessData.Add(new CustomMeasurement(sleepEntry.CreatedAt, avg, Guid.Empty));
+            }
+
+            LoadDaily();
+
+            if (!onSave)
+            {
+                if (IsPulseStale)
+                    GoalMessage = MESSAGE_PULSE_PROMPT;
+                else
+                    GoalMessage = MESSAGE_PULSE_DATA_STILL_FRESH;
+            }
         }
 
         public void RecordEntry()
         {
-            if (IsSaveEnabled)
+            if (IsPulseStale)
             {
-                var sleepMeasurement = new CustomMeasurement(DateTime.Now, Sleep, MeasurementKindDataStore.SleepMeasurementKind.ID);
-                var moodMeasurement = new CustomMeasurement(DateTime.Now, Mood, MeasurementKindDataStore.MoodMeasurementKind.ID);
-                var sorenessMeasurement = new CustomMeasurement(DateTime.Now, Soreness, MeasurementKindDataStore.SorenessMeasurementKind.ID);
-                var stressMeasurement = new CustomMeasurement(DateTime.Now, Stress, MeasurementKindDataStore.StressMeasurementKind.ID);
-                var nutritionMeasurement = new CustomMeasurement(DateTime.Now, Nutrition, MeasurementKindDataStore.NutritionMeasurementKind.ID);
-
-                var measurements = new List<CustomMeasurement>(5);
-                measurements.Add(sleepMeasurement);
-                measurements.Add(moodMeasurement);
-                measurements.Add(sorenessMeasurement);
-                measurements.Add(stressMeasurement);
-                measurements.Add(nutritionMeasurement);
-            
-                var didInsert = MeasurementKindDataStore.Insert(measurements);
-                if (didInsert)
+                if (IsSaveEnabled)
                 {
-                    // Do this.
+                    var sleepMeasurement = new CustomMeasurement(DateTime.Now, Sleep, MeasurementKindDataStore.SleepMeasurementKind.ID);
+                    var moodMeasurement = new CustomMeasurement(DateTime.Now, Mood, MeasurementKindDataStore.MoodMeasurementKind.ID);
+                    var sorenessMeasurement = new CustomMeasurement(DateTime.Now, Soreness, MeasurementKindDataStore.SorenessMeasurementKind.ID);
+                    var stressMeasurement = new CustomMeasurement(DateTime.Now, Stress, MeasurementKindDataStore.StressMeasurementKind.ID);
+                    var nutritionMeasurement = new CustomMeasurement(DateTime.Now, Nutrition, MeasurementKindDataStore.NutritionMeasurementKind.ID);
+
+                    var measurements = new List<CustomMeasurement>(5);
+                    measurements.Add(sleepMeasurement);
+                    measurements.Add(moodMeasurement);
+                    measurements.Add(sorenessMeasurement);
+                    measurements.Add(stressMeasurement);
+                    measurements.Add(nutritionMeasurement);
+            
+                    var didInsert = MeasurementKindDataStore.Insert(measurements);
+                    if (didInsert)
+                    {
+                        // Do this.
+                        GoalMessage = MESSAGE_PULSE_DATA_ENTERED;
+                        RefreshData(true);
+                    }
+                    else
+                    {
+                        GoalMessage = MESSAGE_PULSE_DATA_INSERT_FAILED;
+                    }
                 }
                 else
                 {
+                    // Pop dialog something is missing.
+                    GoalMessage = MESSAGE_PULSE_DATA_FIELD_SKIPPED;
                 }
             }
             else
             {
-                // Pop dialog something is missing.
-                StatusMessage = "Looks like you missed some questions.";
+                GoalMessage = MESSAGE_PULSE_DATA_STILL_FRESH;
             }
         }
 

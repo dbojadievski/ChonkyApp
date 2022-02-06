@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 
 using System.Diagnostics;
+using System.Linq;
+
 namespace ChonkyApp.Calculators
 {
     public static class Calculators
@@ -130,5 +132,58 @@ namespace ChonkyApp.Calculators
                 return fatRange;
             }
         }
+
+        public static Measurement CalculateJasonPollockFatPercentage(IEnumerable<CustomMeasurement> sites, UserProfile profile)
+        {
+            // First, make sure all the sites are what they're supposed to be.
+            Measurement bodyFatMeasurement = null;
+            var bodyFat = 0d;
+            {
+                {
+                    var density = 0d;
+
+                    if (profile.Sex == Sex.Male)
+                    {
+                        var ageFactor = (0.0002574 * profile.AgeInYears);
+
+                        var chest = sites.Where(site => site.MeasurementKindID == Services.MeasurementKindDataStore.ChestSkinfoldMeasurementKind.ID).FirstOrDefault();
+                        var abdomen = sites.Where(site => site.MeasurementKindID == Services.MeasurementKindDataStore.AbdomenSkinfoldMeasurementKind.ID).FirstOrDefault();
+                        var thigh = sites.Where(site => site.MeasurementKindID == Services.MeasurementKindDataStore.ThighSkinfoldMeasurementKind.ID).FirstOrDefault();
+
+                        if (chest == null || abdomen == null || thigh == null)
+                            throw new ArgumentException("Missing data to calculate Jason-Pollock equation for male.");
+                        
+                        
+                        var sum = chest.Value + abdomen.Value + thigh.Value;
+                        var sumSquared = (sum * sum);
+
+                        density = (1.10938d - (0.0008267d * sum) + (0.0000016d * sumSquared) - ageFactor);
+                    }
+                    else if (profile.Sex == Sex.Female)
+                    {
+                        var ageFactor = (0.0001392 * profile.AgeInYears);
+
+                        var thigh = sites.Where(site => site.MeasurementKindID == Services.MeasurementKindDataStore.ThighSkinfoldMeasurementKind.ID).FirstOrDefault();
+                        var triceps = sites.Where(site => site.MeasurementKindID == Services.MeasurementKindDataStore.TricepsSkinfoldMeasurementKind.ID).FirstOrDefault();
+                        var suprailium = sites.Where(site => site.MeasurementKindID == Services.MeasurementKindDataStore.SuprailiumSkinfoldMeasurementKind.ID).FirstOrDefault();
+
+                        if (thigh == null || triceps == null || suprailium == null)
+                            throw new ArgumentException("Missing data to calculate Jason-Pollock equation for female.");
+
+                        var sum = thigh.Value + triceps.Value + suprailium.Value;
+                        var sumSquared = (sum * sum);
+
+                        density = (1.0994921d - (0.0009929d * sum) + (0.0000023d * sumSquared) - ageFactor);
+                    }
+
+                    // Siri formula for body fat % estimation from density.
+                    bodyFat = Math.Truncate(((495d / density) - 450d));
+                    bodyFatMeasurement = new Measurement(DateTime.Now, bodyFat, Unit.Percent, "Body fat");
+                }
+            }
+
+            return bodyFatMeasurement;
+        }
+
     }
 }

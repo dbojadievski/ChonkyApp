@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:chonky="clr-namespace:ChonkyApp.Views"
+             xmlns:xct="clr-namespace:Xamarin.CommunityToolkit.UI.Views;assembly=Xamarin.CommunityToolkit"
+             x:Class="ChonkyApp.Views.SkinfoldEntryMale">
+  <ContentView.Content>
+        <xct:DockLayout>
+            <Button Style="{StaticResource BaseButtonStyle}" Text="Calculate" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding EstimateBodyFatCommand}" CommandParameter="{Binding }" xct:DockLayout.Dock="Bottom"/>
+            <chonky:CoachMessageView xct:DockLayout.Dock="Top" />
+            <Grid xct:DockLayout.Dock="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+
+                <Label Text="Chest" Grid.Row="0" Grid.Column="0" />
+                <Entry Text="{Binding ChestSkinfold}" Grid.Row="0" Grid.Column="1" Style="{StaticResource DataFieldEntryStyle}" />
+                <Entry Text="mm" Grid.Row="0" Grid.Column="2" HorizontalOptions="Start" />
+
+                <Label Text="Abdomen" Grid.Row="1" Grid.Column="0" />
+                <Entry Text="{Binding AbdomenSkinfold}" Grid.Row="1" Grid.Column="1" Style="{StaticResource DataFieldEntryStyle}" />
+                <Entry Text="mm" Grid.Row="1" Grid.Column="2" HorizontalOptions="Start" />
+
+                <Label Text="Thigh" Grid.Row="2" Grid.Column="0" />
+                <Entry Text="{Binding ThighSkinfold}" Grid.Row="2" Grid.Column="1" Style="{StaticResource DataFieldEntryStyle}" />
+                <Entry Text="mm" Grid.Row="2" Grid.Column="2" HorizontalOptions="Start" />
+            </Grid>
+        </xct:DockLayout>
+    </ContentView.Content>
+</ContentView>

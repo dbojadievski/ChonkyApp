@@ -24,7 +24,6 @@ namespace ChonkyApp.Views
             
             viewModel = new DataPointViewModel();
             BindingContext = viewModel;
-
         }
 
 
@@ -41,6 +40,12 @@ namespace ChonkyApp.Views
         private void HeartbeatButton_Clicked(object sender, EventArgs e)
         {
             Navigation.PushAsync(new PulseView());
+        }
+
+        private void ButtonEstimate_Clicked(object sender, EventArgs e)
+        {
+            var page = new ModalDialogPage(viewModel);
+            Navigation.PushModalAsync(page);
         }
     }
 }

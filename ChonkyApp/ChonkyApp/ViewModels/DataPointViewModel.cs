@@ -41,9 +41,11 @@ namespace ChonkyApp.ViewModels
 
         private ICommand saveDataPointCommand;
         private ICommand saveDailyGoalCommand;
+        private ICommand calcBodyFatCommand;
 
         private LineChart bodyWeightChart;
         private LineChart bodyFatChart;
+        private LineChart wellnessChart;
 
         DailyGoalEntry dailyGoalSodium;
         DailyGoalEntry dailyGoalPotassium;
@@ -61,6 +63,14 @@ namespace ChonkyApp.ViewModels
 
         String bodyWeightInput;
         String bodyFatInput;
+
+        String chestSkinfold;
+        String abdomenSkinfold;
+        String thighSkinfold;
+        String tricepsSkinfold;
+        String suprailiacSkinfold;
+
+        PulseViewModel pulseViewModel;
 
         public UserProfile CurrentProfile
         {
@@ -124,6 +134,12 @@ namespace ChonkyApp.ViewModels
                 OnPropertyChanged(nameof(SpaceGoalVitaminEStyle));
 
             }
+        }
+
+        public PulseViewModel PulseViewModel
+        {
+            get => pulseViewModel;
+            set => SetProperty(ref pulseViewModel, value);
         }
 
         public Guid SodiumID
@@ -253,6 +269,12 @@ namespace ChonkyApp.ViewModels
             set => SetProperty(ref bodyFatChart, value);
         }
 
+        public LineChart AthletePulseChart
+        {
+            get => wellnessChart;
+            set => SetProperty(ref wellnessChart, value);
+        }
+
         public bool IsBusy
         {
             get => isBusy;
@@ -293,6 +315,13 @@ namespace ChonkyApp.ViewModels
             get => saveDailyGoalCommand;
             set => SetProperty(ref saveDailyGoalCommand, value);
         }
+
+        public ICommand EstimateBodyFatCommand
+        {
+            get => calcBodyFatCommand;
+            set => SetProperty(ref calcBodyFatCommand, value);
+        }
+
         public String GoalMessage
         {
             get => goalMessage;
@@ -502,15 +531,47 @@ namespace ChonkyApp.ViewModels
             set => SetProperty(ref bodyFatInput, value);
         }
 
+        public String ChestSkinfold
+        {
+            get => chestSkinfold;
+            set => SetProperty(ref chestSkinfold, value);
+        }
+
+        public String AbdomenSkinfold
+        {
+            get => abdomenSkinfold;
+            set => SetProperty(ref abdomenSkinfold, value);
+        }
+
+        public String ThighSkinfold
+        {
+            get => thighSkinfold;
+            set => SetProperty(ref thighSkinfold, value);
+        }
+
+        public String TricepsSkinfold
+        {
+            get => tricepsSkinfold;
+            set => SetProperty(ref tricepsSkinfold, value);
+        }
+
+        public String SuprailiacSkinfold
+        {
+            get => suprailiacSkinfold;
+            set => SetProperty(ref suprailiacSkinfold, value);
+        }
+
         public DataPointViewModel()
         {
             CurrentProfile = UserProfileDataStore.GetCurrentProfile().Result;
+            PulseViewModel = new PulseViewModel();
 
             bodyWeight = new Measurement(DateTime.Now, 70.0, Unit.Kilogram);
             bodyFat = new Measurement(DateTime.Now, 15.0, Unit.Percent);
 
             saveDataPointCommand = new AddDataPointCommand(this);
             SaveDailyGoalCommand = new SaveDailyGoalCommand(this);
+            EstimateBodyFatCommand = new CalculateBodyFatCommand(); 
 
             BodyWeightChart = new LineChart();
             var entries = new List<ChartEntry>();
@@ -528,10 +589,16 @@ namespace ChonkyApp.ViewModels
             fatEntries.Add(nullFatEntry);
             BodyFatChart.Entries = fatEntries;
 
+            AthletePulseChart = new LineChart();
+            var wellnessEntries = new List<ChartEntry>();
+            wellnessEntries.Add(new ChartEntry(0));
+            AthletePulseChart.BackgroundColor = SkiaSharp.SKColors.Black;
+            AthletePulseChart.Entries = wellnessEntries;
+            var asList = wellnessEntries.ToList();
             _ = RefreshData();
         }
 
-        private async Task RefreshData( bool refreshWeight = true, bool refreshFat = true, bool refeshSpaceGoals = true)
+        private async Task RefreshData( bool refreshWeight = true, bool refreshFat = true, bool refeshSpaceGoals = true, bool refreshWellness = true)
         {
             DateTime lastDayOfLookBackWindow = DateTime.Now.AddDays(-maxDaysInLookBackWindow);
             if (refreshWeight)
@@ -566,6 +633,45 @@ namespace ChonkyApp.ViewModels
             if (refeshSpaceGoals)
             {
                 RefreshSpaceGoals();
+            }
+
+            if (refreshWellness)
+            {
+                List<ChartEntry> chartEntries = new List<ChartEntry>();
+                var minMeasurement = PulseViewModel.RecentWellnessData.Min(m => m.Value);
+                var maxMeasurement = PulseViewModel.RecentWellnessData.Max(m => m.Value);
+
+
+                float? prevEntry = null;
+                foreach (var currEntry in PulseViewModel.RecentWellnessData)
+                {
+                    var val = (float) currEntry.Value;
+                    if (prevEntry.HasValue)
+                    {
+                        var computedVal = prevEntry.Value + val;
+                        prevEntry = computedVal;
+                        val = computedVal;
+                    }
+                    else
+                    {
+                        val = 0;
+                        prevEntry = 0;
+                    }
+
+                    ChartEntry entry = new ChartEntry(val);
+                    entry.Color = SkiaSharp.SKColors.Purple;
+                    chartEntries.Add(entry);
+                }
+
+                if ( chartEntries.Count == 0)
+                {
+                    // Add a default entry so that the stupid chart lib doesn't crash.
+                    chartEntries.Add(new ChartEntry(0));
+                }
+
+                AthletePulseChart.MinValue = chartEntries.Min(e => e.Value);
+                AthletePulseChart.MaxValue = chartEntries.Max(e => e.Value);
+                AthletePulseChart.Entries = chartEntries;
             }
 
 
@@ -642,6 +748,10 @@ namespace ChonkyApp.ViewModels
 
                 OnPropertyChanged();
             }
+
+            ChestSkinfold = "5";
+            AbdomenSkinfold = "5";
+            ThighSkinfold = "5";
         }
 
         private void GenerateGoalMessage()
@@ -725,7 +835,7 @@ namespace ChonkyApp.ViewModels
             var isSuccess = await DailyGoalDataStore.InsertGoalEntry(entry);
             if (isSuccess)
             {
-                await RefreshData(false, false, true);
+                await RefreshData(false, false, true, false);
 
                 if (goal == SodiumID)
                     GoalMessage = SodiumReachedMessage;
@@ -752,7 +862,7 @@ namespace ChonkyApp.ViewModels
             };
 
             var isSuccess = await DailyGoalDataStore.DeleteGoalEntry(entry);
-            await RefreshData(false, false, true);
+            await RefreshData(false, false, true, false);
             return isSuccess;
         }
 
@@ -777,6 +887,69 @@ namespace ChonkyApp.ViewModels
             }
 
             return metricEntries;
+        }
+
+        public async Task<Measurement> EstimateBodyFat()
+        {
+            Measurement bodyFatEstimate = null;
+            
+            var measurements = new List<CustomMeasurement>();
+
+            if (CurrentProfile.Sex == Sex.Male)
+            {
+                var isChestInputValid = Double.TryParse(ChestSkinfold, out double chestSkinfoldValue);
+                var isAbdominalInputValid = Double.TryParse(AbdomenSkinfold, out double abdominalSkinfoldValue);
+                var isThighInputValid = Double.TryParse(ThighSkinfold, out double thighSkinfoldValue);
+
+                if (isChestInputValid && isAbdominalInputValid && isThighInputValid)
+                {
+                    var chestMeasurement = new CustomMeasurement(DateTime.Now, chestSkinfoldValue, MeasurementKindDataStore.ChestSkinfoldMeasurementKind.ID);
+                    var abdominalMeasurement = new CustomMeasurement(DateTime.Now, abdominalSkinfoldValue, MeasurementKindDataStore.AbdomenSkinfoldMeasurementKind.ID);
+                    var thighMeasurement = new CustomMeasurement(DateTime.Now, thighSkinfoldValue, MeasurementKindDataStore.ThighSkinfoldMeasurementKind.ID);
+
+                    measurements.Add(chestMeasurement);
+                    measurements.Add(abdominalMeasurement);
+                    measurements.Add(thighMeasurement);
+
+                    bodyFatEstimate = Calculators.Calculators.CalculateJasonPollockFatPercentage(measurements, CurrentProfile);
+                }
+            }
+            else
+            {
+                var isThighInputValid = Double.TryParse(ThighSkinfold, out double thighSkinfoldValue);
+                var isTricepsInputValid = Double.TryParse(TricepsSkinfold, out double tricepsSkinfoldValue);
+                var isSuprailiacInputValid = Double.TryParse(SuprailiacSkinfold, out double suprailiacSkinfoldValue);
+
+                if (isThighInputValid && isTricepsInputValid && isSuprailiacInputValid)
+                {
+                    var thighMeasurement = new CustomMeasurement(DateTime.Now, thighSkinfoldValue, MeasurementKindDataStore.ThighSkinfoldMeasurementKind.ID);
+                    var tricepsMeasurement = new CustomMeasurement(DateTime.Now, tricepsSkinfoldValue, MeasurementKindDataStore.TricepsSkinfoldMeasurementKind.ID);
+                    var suprailiacMeasurement = new CustomMeasurement(DateTime.Now, suprailiacSkinfoldValue, MeasurementKindDataStore.SuprailiumSkinfoldMeasurementKind.ID);
+
+                    measurements.Add(thighMeasurement);
+                    measurements.Add(tricepsMeasurement);
+                    measurements.Add(suprailiacMeasurement);
+
+                    bodyFatEstimate = Calculators.Calculators.CalculateJasonPollockFatPercentage(measurements, CurrentProfile);
+                }
+            }
+
+            if (bodyFatEstimate != null)
+            {
+                var result = await App.Current.MainPage.DisplayAlert("Estimate Complete", $"You seem to be at {bodyFatEstimate.Value}% body fat.\r\nWould you like me to remember this?", "Yes (Remember)", "No (Forget)");
+                if (result)
+                {
+                    MeasurementDataStore.AddItem(bodyFatEstimate);
+                    MeasurementKindDataStore.Insert(measurements);
+                    await RefreshData();
+                }
+            }
+            else
+                await App.Current.MainPage.DisplayAlert("Error", "I couldn't calculate your estimate. Try again later.", "OK");
+
+            App.Current.MainPage.Navigation.PopAsync();
+
+            return bodyFatEstimate;
         }
     }
 }

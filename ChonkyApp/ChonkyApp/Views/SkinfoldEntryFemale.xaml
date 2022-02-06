@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:chonky="clr-namespace:ChonkyApp.Views"
+             x:Class="ChonkyApp.Views.SkinfoldEntryFemale">
+    <ContentView.Content>
+        <StackLayout>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <chonky:CoachMessageView Grid.Row="0" Grid.ColumnSpan="3" />
+
+                <Label Text="Thigh" Grid.Row="1" Grid.Column="0" />
+                <Entry Text="{Binding ThighSkinfold}" Grid.Row="1" Grid.Column="1" Style="{StaticResource DataFieldEntryStyle}" />
+                <Entry Text="mm" Grid.Row="1" Grid.Column="2" HorizontalOptions="Start" />
+
+                <Label Text="Triceps" Grid.Row="2" Grid.Column="0" />
+                <Entry Text="{Binding TricepsSkinfold}" Grid.Row="2" Grid.Column="1" Style="{StaticResource DataFieldEntryStyle}" />
+                <Entry Text="mm" Grid.Row="2" Grid.Column="2" HorizontalOptions="Start" />
+
+                <Label Text="Suprailiac" Grid.Row="3" Grid.Column="0" />
+                <Entry Text="{Binding SuprailiacSkinfold}" Grid.Row="3" Grid.Column="1" Style="{StaticResource DataFieldEntryStyle}" />
+                <Entry Text="mm" Grid.Row="3" Grid.Column="2" HorizontalOptions="Start" />
+
+                <Button Style="{StaticResource BaseButtonStyle}" Text="Calculate" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding EstimateBodyFatCommand}" CommandParameter="{Binding }"/>
+            </Grid>
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>

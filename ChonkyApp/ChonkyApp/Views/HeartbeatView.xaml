@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ChonkyApp.Views.PulseView" BackgroundColor="{StaticResource Primary}"
+             xmlns:chonky="clr-namespace:ChonkyApp.Views"
              xmlns:chonkyCommands="clr-namespace:ChonkyApp.Commands"
              >
     <ContentPage.Resources BackgroundColor="{StaticResource Primary}">
@@ -133,11 +134,7 @@
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
-            <StackLayout Orientation="Vertical" Grid.Row="0" Margin="20,10" >
-                <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
-                <Label Text="{Binding StatusMessage}"/>
-                <BoxView HeightRequest="1" Color="White" WidthRequest="1" />
-            </StackLayout>
+            <chonky:CoachMessageView Grid.Row="0" />
             <ScrollView Grid.Row="1">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -333,7 +330,14 @@
                             </RadioButton>
                         </Grid>
                     </StackLayout>
-                <Button Text="Save" Style="{StaticResource BaseButtonStyle}" Grid.Row="5" Margin="20" Command="{Binding SaveEntryCommand}" CommandParameter="{Binding}"/>
+                <Button Text="Save" 
+                        Style="{StaticResource BaseButtonStyle}" 
+                        Grid.Row="5" 
+                        Margin="20" 
+                        Command="{Binding SaveEntryCommand}" 
+                        CommandParameter="{Binding}" 
+                        IsEnabled="{Binding IsPulseStale}"
+                        />
                 </Grid>
             </ScrollView>
         </Grid>

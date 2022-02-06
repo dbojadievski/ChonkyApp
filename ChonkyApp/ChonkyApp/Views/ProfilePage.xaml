@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:chonkyConverters="clr-namespace:ChonkyApp.Converter"
+             xmlns:xct="clr-namespace:Xamarin.CommunityToolkit.UI.Views;assembly=Xamarin.CommunityToolkit"
              x:Class="ChonkyApp.Views.ProfilePage">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -12,43 +13,45 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.Content>
-        <StackLayout Orientation="Vertical" IsEnabled="{Binding IsEnabled}">
-            <StackLayout Orientation="Horizontal">
-                <Label Text="Metric" />
-                <Switch 
-                    x:Name="switchUnit" 
-                    IsToggled="{Binding CurrentProfile.IsImperial}"
-                 />
-                <Label Text="Imperial" />
+        <xct:DockLayout BackgroundColor="{StaticResource Primary}">
+            <Button Style="{StaticResource BaseButtonStyle}" Text="Save" Command="{Binding SaveProfileCommand}" Margin="20, 0" Grid.Row="1" xct:DockLayout.Dock="Bottom"/>
+            <StackLayout Orientation="Vertical" Grid.Row="0" xct:DockLayout.Dock="Top">
+                <StackLayout Orientation="Horizontal" Margin="20, 0">
+                    <Label Text="Metric" />
+                    <Switch 
+                        x:Name="switchUnit" 
+                        IsToggled="{Binding CurrentProfile.IsImperial}"
+                     />
+                    <Label Text="Imperial" />
+                </StackLayout                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         >
+                <StackLayout Orientation="Horizontal" Margin="20, 0">
+                    <Label Text="Name:" />
+                    <Entry Text="{Binding CurrentProfile.FirstName}" HorizontalOptions="Center"/>
+                    <Entry Text="{Binding CurrentProfile.LastName}" HorizontalOptions="Center" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" Margin="20, 0">
+                    <Label Text="Birth date:" />
+                    <DatePicker Date="{Binding CurrentProfile.BirthDate}" Style="{StaticResource BaseDatePickerStyle}" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" Margin="20, 0">
+                    <Label Text="Age" />
+                    <Entry Text="{Binding CurrentProfile.AgeInYears}" IsEnabled="False" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" Margin="20, 0">
+                    <Label Text="Height" />
+                    <Entry Text="{Binding CurrentProfile.Height}" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" RadioButtonGroup.GroupName="Sex" Margin="20, 0">
+                    <Label Text="Sex" />
+                    <RadioButton x:Name="rbMale" GroupName="Sex" Content="Male" IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToInvertedBoolConverter}}" />
+                    <RadioButton x:Name="rbFemale" GroupName="Sex" Content="Female"  IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToBoolConverter}}"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" Margin="20, 0">
+                    <Label Text="Goal" />
+                    <RadioButton x:Name="rbGain" Content="Gain" IsChecked="{Binding ShouldGain}" />
+                    <RadioButton x:Name="rbLose" Content="Lose" IsChecked="{Binding ShouldLose}"/>
+                </StackLayout>
             </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label Text="Name:" />
-                <Entry Text="{Binding CurrentProfile.FirstName}" HorizontalOptions="Center"/>
-                <Entry Text="{Binding CurrentProfile.LastName}" HorizontalOptions="Center" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label Text="Birth date:" />
-                <DatePicker Date="{Binding CurrentProfile.BirthDate}" Style="{StaticResource BaseDatePickerStyle}" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label Text="Age" />
-                <Entry Text="{Binding CurrentProfile.AgeInYears}" IsEnabled="False" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label Text="Height" />
-                <Entry Text="{Binding CurrentProfile.Height}" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal" RadioButtonGroup.GroupName="Sex">
-                <Label Text="Sex" />
-                <RadioButton x:Name="rbMale" GroupName="Sex" Content="Male" IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToInvertedBoolConverter}}" />
-                <RadioButton x:Name="rbFemale" GroupName="Sex" Content="Female"  IsChecked="{Binding CurrentProfile.Sex, Converter={StaticResource SexToBoolConverter}}"/>
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label Text="Goal" />
-                <RadioButton x:Name="rbGain" Content="Gain" IsChecked="{Binding ShouldGain}" />
-                <RadioButton x:Name="rbLose" Content="Lose" IsChecked="{Binding ShouldLose}"/>
-            </StackLayout>
-            <Button Style="{StaticResource BaseButtonStyle}" Text="Save" Command="{Binding SaveProfileCommand}" />
-        </StackLayout>
+        </xct:DockLayout>
     </ContentPage.Content>
 </ContentPage>
